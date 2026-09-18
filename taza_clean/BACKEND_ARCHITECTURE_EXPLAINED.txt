@@ -1,0 +1,316 @@
+================================================================================
+                    TAZA AGRI-TECH PLATFORM BACKEND
+                 HOW THE ENTIRE BACKEND WORKS & CONTROL FLOW
+================================================================================
+
+--------------------------------------------------------------------------------
+1. THE BIG PICTURE (A SIMPLE RESTAURANT & MANDI ANALOGY)
+--------------------------------------------------------------------------------
+
+Imagine the TAZA Agri-Tech Backend as a super-efficient "Direct Farm-to-Fork" 
+digital marketplace and logistics operations center for West Bengal, India. 
+Its job is to allow farmers (in Singur, Tarakeswar, Nadia, Malda, etc.) to list 
+their freshly harvested crops directly, while consumers and buyers can buy them 
+with live freshness decay scoring, fair prices, and green vehicle delivery routes.
+
+Here is how each part of the system acts in simple everyday terms:
+
+1. THE WAITER (FastAPI Routers - `app/routers/`):
+   When a user clicks a button on their phone or web app (e.g. "Show Fresh Crops", 
+   "Place Order", "Send OTP"), the request goes to the Router. The Router greets 
+   the request, checks what kind of action is needed, and directs it to the 
+   right kitchen chef.
+
+2. THE SECURITY GUARD (Authentication & Dependencies - `app/core/deps.py` & `security.py`):
+   Before the Waiter takes sensitive requests (like "Create Crop Listing" or 
+   "Update Delivery Status"), the Security Guard inspects the user's digital ID 
+   badge (JWT Token). If they are a verified Farmer or Consumer, they pass; if 
+   not, they are stopped immediately with an error (401 Unauthorized).
+
+3. THE ORDER SLIP & RECEIPT SPEC (Pydantic Schemas - `app/schemas/`):
+   Ensures that every piece of data coming into or leaving the kitchen follows an 
+   exact shape. If a phone number is missing or coordinates are outside Bengal's 
+   geographical boundaries, it is rejected before causing errors.
+
+4. THE HEAD CHEFS (Business Logic Services - `app/services/`):
+   This is where all the heavy lifting and intelligence happens:
+   - Freshness & Pricing Chef: Calculates how fast spinach or radishes lose 
+     freshness hour-by-hour using scientific decay math.
+   - Logistics & Routing Chef: Figures out the shortest, greenest vehicle route 
+     between farms and city kitchens to minimize diesel emissions.
+   - Weather & Disaster Chef: Checks live satellite rain and wind data to warn 
+     farmers about flash floods or cyclones before harvest.
+   - OTP Chef: Creates and verifies 6-digit SMS login codes.
+   - Payment Chef: Talks with Razorpay to accept payments safely.
+
+5. THE PANTRY & LEDGER (Database - `app/core/database.py` & `app/models/`):
+   The permanent memory storage where user accounts, crop batches, active orders, 
+   district statistics, and Mandi APMC benchmark prices are kept.
+
+6. THE EXTERNAL CONTRACTORS (Microservices & APIs):
+   When TAZA needs specialized external work, it connects with external services 
+   (such as your Spring Boot Routing, Maps, Alert, and OTP engines, plus 
+   Open-Meteo and Razorpay). If any external service is temporarily offline, 
+   TAZA automatically executes a built-in local fallback so users never face downtime.
+
+
+--------------------------------------------------------------------------------
+2. STEP-BY-STEP FLOW: HOW CONTROL AND DATA MOVE ACROSS THE SYSTEM
+--------------------------------------------------------------------------------
+
+Let us walk through a real example: A Consumer in Kolkata orders fresh potatoes 
+from a Farmer in Hooghly.
+
+Step 1: REQUEST ENTERS THE FRONT DOOR (`app/main.py`)
+- The client app sends an HTTP POST request to `/api/v1/orders`.
+- `main.py` matches the URL prefix `/api/v1` and hands the request to `orders_router`.
+
+Step 2: SECURITY & PERMISSION CHECK (`app/core/deps.py`)
+- `get_current_user` extracts the `Authorization: Bearer <token>` header.
+- `app/core/security.py` decrypts the token, confirms it is valid and unexpired, 
+  and loads the Consumer's user account from the database.
+
+Step 3: PAYLOAD VALIDATION (`app/schemas/order.py`)
+- The incoming JSON data is checked against `OrderCreateRequest`.
+- It validates the crop ID, quantity (e.g. 5.0 kg), delivery coordinates, and payment method.
+
+Step 4: BUSINESS SERVICE EXECUTION (`app/services/`)
+- `pricing_freshness_service.py` calculates the live price per kg based on 
+  hours elapsed since harvest and Mandi benchmark prices.
+- `logistics_service.py` computes the distance (Hooghly to Kolkata), vehicle type 
+  (Tata Ace / E-Rickshaw), delivery cost, and carbon savings.
+- `payment_service.py` creates a Razorpay order entity with amount in paise.
+
+Step 5: DATABASE PERSISTENCE (`app/core/database.py`)
+- The order document is saved into the `orders` collection in MongoDB.
+- Crop available stock is decremented.
+
+Step 6: NOTIFICATIONS (`app/services/notification_service.py`)
+- The system fires simulated SMS/notifications to both the farmer and consumer.
+
+Step 7: RESPONSE RETURNED TO USER
+- The response is serialized into the exact schema (`OrderResponse`) and sent back 
+  as HTTP 201 Created with JSON details.
+
+
+--------------------------------------------------------------------------------
+3. DETAILED FILE-BY-FILE & DIRECTORY-BY-DIRECTORY BREAKDOWN
+--------------------------------------------------------------------------------
+
+================================================================================
+A. ROOT CONFIGURATION & STARTUP FILES
+================================================================================
+
+* `app/main.py`:
+  - The central ignition point of the application.
+  - Initializes FastAPI with OpenAPI documentation (`/docs`, `/redoc`).
+  - Sets up CORS (Cross-Origin Resource Sharing) middleware.
+  - Registers all modular API routers under the `/api/v1` prefix.
+  - Runs application startup lifespan to seed and initialize database tables.
+
+* `.env.example`:
+  - Template listing all environment variables (Database URI, Secrets, Service URLs, 
+    Razorpay keys, Port numbers).
+
+* `requirements.txt`:
+  - Python dependencies: FastAPI, Uvicorn, Motor (async MongoDB), Pydantic, HTTPX, 
+    PyJWT, Passlib, Pytest, AnyIO.
+
+* `pytest.ini`:
+  - Test runner configuration specifying test paths and async execution flags.
+
+* `db.py` & `agri_platform.db`:
+  - Local database utility and testing dataset fallback.
+
+* `README.md`:
+  - Project architectural guide, district list, and deployment instructions.
+
+
+================================================================================
+B. CORE SYSTEM LAYER (`app/core/`)
+================================================================================
+
+* `app/core/config.py`:
+  - The single source of truth for configuration and environment variables.
+  - Loads variables from `.env` with type validation.
+  - Stores all microservice URLs:
+    * `ROUTE_OPTIMIZATION_SERVICE_URL`
+    * `DISASTER_ALERTS_SERVICE_URL`
+    * `MAPS_SERVICE_URL`
+    * `OTP_SERVICE_URL`
+    * `RAZORPAY_KEY_ID` & `RAZORPAY_KEY_SECRET`
+    * `OSRM_BASE_URL` & `OPEN_METEO_BASE_URL`
+
+* `app/core/database.py`:
+  - Asynchronous database engine connecting to MongoDB via Motor.
+  - Manages database initialization, collection indexes, auto-incrementing ID sequences, 
+    and mock database session fallbacks for automated testing.
+
+* `app/core/deps.py`:
+  - FastAPI Dependency Injection module.
+  - Provides `get_db` for database access in routes.
+  - Provides `get_current_user`, `get_current_farmer`, and `get_current_consumer` 
+    to protect routes and ensure only authorized roles can access endpoints.
+
+* `app/core/security.py`:
+  - Password hashing and verification using Bcrypt.
+  - JWT (JSON Web Token) creation, signing (HS256), and decoding.
+
+
+================================================================================
+C. DATA SCHEMAS & CONTRACTS (`app/schemas/`)
+================================================================================
+
+* `app/schemas/auth.py`:
+  - Input/output models for User Registration, Login, Token exchange, and Profiles.
+
+* `app/schemas/farmer.py`:
+  - Models for Crop Listing creation, update, inventory tracking, and Farmer Dashboard.
+
+* `app/schemas/consumer.py`:
+  - Models for Consumer Catalog items, freshness scores, Mandi comparison, and Cart.
+
+* `app/schemas/order.py`:
+  - Models for Order placement, payment confirmation, order items, and delivery status.
+
+* `app/schemas/logistics.py`:
+  - Route calculation requests/responses, vehicle selection, carbon emissions savings, 
+    multi-stop batch optimization, and `Location`, `RouteRequest`, `RouteResponse`.
+
+* `app/schemas/maps.py`:
+  - Maps geocode and reverse-geocode data structures (`Place` / `PlaceResponse`).
+
+* `app/schemas/otp.py`:
+  - OTP models (`OtpData`, `SendOtpRequest`, `SendOtpResponse`, `VerifyOtpRequest`, `VerifyOtpResponse`).
+
+* `app/schemas/weather.py`:
+  - Weather advisory and disaster alert models (`WeatherAdvisoryResponse`, `AgroAlertItem`, `DisasterAlertResponse`).
+
+* `app/schemas/analytics.py`:
+  - District profiles, crop price trends, APMC mandi rates, and farmer economics.
+
+* `app/schemas/market_farmer.py`:
+  - Market connection models between farmers and wholesale buyers.
+
+
+================================================================================
+D. BUSINESS LOGIC SERVICES (`app/services/`)
+================================================================================
+
+* `app/services/pricing_freshness_service.py`:
+  - Implements the biological freshness exponential decay equation:
+    Freshness(t) = 100 * exp(-lambda * t)
+  - Computes arbitrage price between farmgate base price and APMC Mandi benchmarks.
+
+* `app/services/logistics_service.py`:
+  - Evaluates geodesic distances, tortuosity factors (Bengal rural roads), and OSRM routes.
+  - Selects green vehicles (E-Rickshaw, 3W E-Truck, Tata Ace, Reefer Cold Van).
+  - Calculates carbon emission savings compared to heavy diesel transport.
+  - Connects to external Route Optimization API with resilient nearest-neighbor fallback.
+
+* `app/services/weather_service.py`:
+  - Fetches live weather from Open-Meteo for 14+ West Bengal districts.
+  - Evaluates agricultural risks (waterlogging, frost, heat stress).
+  - Connects to external Disaster Alerts API (`/api/v1/alerts`) for gale/flood alarms.
+
+* `app/services/maps_service.py`:
+  - Handles forward geocoding and reverse geocoding.
+  - Queries external Spring Boot Maps Service with pre-seeded Bengal hub fallbacks.
+
+* `app/services/otp_service.py`:
+  - Generates 6-digit random verification OTPs.
+  - Enforces 5-minute expiration window and single-use consumption.
+  - Calls external Spring Boot OTP service with internal in-memory fallback.
+
+* `app/services/payment_service.py`:
+  - Prepares Razorpay checkout orders in smallest currency units (paise).
+  - Performs cryptographic HMAC SHA-256 signature verification for transactions.
+
+* `app/services/notification_service.py`:
+  - Dispatches simulated SMS and push notification alerts for orders and delivery updates.
+
+
+================================================================================
+E. API ROUTERS & ENDPOINTS (`app/routers/`)
+================================================================================
+
+* `app/routers/auth.py`:
+  - `POST /api/v1/auth/register` (Register Farmer or Consumer)
+  - `POST /api/v1/auth/login` & `POST /api/v1/auth/login/json` (User Login & Token issue)
+  - `GET /api/v1/auth/me` (Current user profile)
+
+* `app/routers/farmers.py`:
+  - `POST /api/v1/farmers/listings` (Publish fresh crop batch with harvest timestamp)
+  - `GET /api/v1/farmers/listings` (View active farmer listings)
+  - `GET /api/v1/farmers/dashboard` (Farmer sales, orders, and revenue summary)
+
+* `app/routers/consumers.py`:
+  - `GET /api/v1/consumers/catalog` (Live produce catalog sorted by freshness/distance)
+  - `GET /api/v1/consumers/listing/{id}` (Produce item details with mandi comparison)
+
+* `app/routers/orders.py`:
+  - `POST /api/v1/orders` (Place dynamic-weight order)
+  - `GET /api/v1/orders/{id}` (Order tracking & status)
+  - `POST /api/v1/orders/{id}/verify-payment` (Razorpay payment confirmation)
+
+* `app/routers/logistics.py` & `app/routers/routing.py`:
+  - `POST /api/v1/logistics/calculate-route` (Distance, duration, carbon savings, vehicle)
+  - `POST /api/v1/logistics/batch-optimize` (Multi-stop farmgate pickup optimization)
+  - `POST /api/v1/optimize-route` (Direct Spring Boot route optimization interface)
+
+* `app/routers/alerts.py` & `app/routers/weather.py`:
+  - `GET /api/v1/weather/advisory` (District agro-meteorological advisory)
+  - `GET /api/v1/alerts` & `GET /api/v1/weather/alerts` (Meteorological disaster warnings)
+
+* `app/routers/maps.py`:
+  - `GET /api/v1/maps/geocode` (Search places/landmarks by query text)
+  - `GET /api/v1/maps/reverse-geocode` (Lookup address by lat/lng coordinates)
+
+* `app/routers/otp.py`:
+  - `POST /api/v1/otp/send` (Send 6-digit SMS verification OTP)
+  - `POST /api/v1/otp/verify` (Verify 6-digit OTP code)
+
+* `app/routers/analytics.py` & `app/routers/market_farmer.py`:
+  - `GET /api/v1/analytics/districts` (West Bengal district agricultural data)
+  - `GET /api/v1/analytics/mandi-benchmarks` (APMC mandi benchmark prices)
+  - `GET /api/v1/market-farmer/stats` (Market connection analytics)
+
+
+================================================================================
+F. DATABASE SEEDING & TEST SUITE (`app/seeds/` & `tests/`)
+================================================================================
+
+* `app/seeds/west_bengal_data.py`:
+  - Rich real-world dataset of West Bengal agricultural hubs (Hooghly, Purba Bardhaman, 
+    Nadia, Malda, Murshidabad, Bankura, South 24 Parganas, Darjeeling, etc.), crop 
+    varieties (Jyoti Potato, Pusa Chetki Radish, Himsagar Mango), and APMC Mandis.
+
+* `tests/test_api.py` & `tests/test_market_farmer.py`:
+  - Comprehensive automated test suite validating:
+    * Health checks
+    * Authentication & Role separation
+    * Farmer listing creation & Freshness decay
+    * Consumer catalog queries
+    * Order creation & payment verification
+    * Route optimization (Spring Boot + Local fallback)
+    * Disaster weather alerts (Normal, Gale, Hurricane, Flood)
+    * Maps geocode & reverse geocode
+    * OTP dispatch & single-use verification
+    * District analytics & Mandi benchmarks
+
+
+================================================================================
+4. SUMMARY OF EXTERNAL INTEGRATIONS
+================================================================================
+
+1. Spring Boot Routing Engine  --> `POST /api/v1/optimize-route`
+2. Spring Boot Alerts Engine   --> `GET /api/v1/alerts`
+3. Spring Boot Maps Engine     --> `GET /api/v1/maps/geocode`, `GET /api/v1/maps/reverse-geocode`
+4. Spring Boot OTP Engine      --> `POST /api/v1/otp/send`, `POST /api/v1/otp/verify`
+5. Razorpay Sandbox Gateway    --> `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`
+6. Open-Meteo Public API       --> Live weather forecasts (zero-key required)
+
+Every service is designed with resilience: if a remote microservice is unreachable, 
+the backend automatically executes the matching mathematical or logical algorithm 
+locally so the system never breaks.
+================================================================================

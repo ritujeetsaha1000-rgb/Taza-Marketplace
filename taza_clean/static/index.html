@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TAZA KisanDirect | Direct Farm-to-Fork Agri-Logistics Marketplace</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <!-- Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- 1. TOP ANNOUNCEMENT & CALAMITY TICKER (LIVE OPEN-METEO TELEMETRY) -->
+  <aside class="calamity-ticker" id="topCalamityTicker">
+    <div class="ticker-content" style="display: flex; align-items: center; gap: 8px; flex: 1;">
+      <i data-lucide="shield-alert" id="tickerIcon"></i>
+      <span id="tickerText"><strong>Live Meteorological Scan:</strong> Connecting to Open-Meteo live telemetry for Bengal agro-corridors...</span>
+    </div>
+    <div class="ticker-action" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+      <select id="tickerDistrictSelect" onchange="loadLiveAlerts(this.value)" title="Scan Live Weather for District" style="background: rgba(255,255,255,0.18); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 6px; font-size: 11.5px; font-weight: 700; padding: 3px 8px; outline: none; cursor: pointer;">
+        <option value="Hooghly" style="color: #0f172a;" selected>Hooghly Live</option>
+        <option value="Purba Bardhaman" style="color: #0f172a;">Purba Bardhaman</option>
+        <option value="Nadia" style="color: #0f172a;">Nadia</option>
+        <option value="Malda" style="color: #0f172a;">Malda</option>
+        <option value="Murshidabad" style="color: #0f172a;">Murshidabad</option>
+        <option value="South 24 Parganas" style="color: #0f172a;">South 24 Parganas</option>
+        <option value="Sundarbans" style="color: #0f172a;">Sundarbans Delta</option>
+        <option value="Darjeeling" style="color: #0f172a;">Darjeeling</option>
+        <option value="Bankura" style="color: #0f172a;">Bankura</option>
+        <option value="Kolkata" style="color: #0f172a;">Kolkata</option>
+      </select>
+      <a href="#calamity" onclick="openLogisticsModal()" id="tickerActionLink">Track Dispatch Corridors</a>
+    </div>
+  </aside>
+
+  <!-- 2. PRIMARY COMMERCIAL HEADER -->
+  <header class="main-header">
+    <!-- Brand Logo -->
+    <div class="nav-left">
+      <div class="brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i data-lucide="sprout" class="brand-icon"></i>
+        <div class="brand-text">
+          <span class="logo-title">TAZA</span>
+          <span class="logo-domain">.in</span>
+        </div>
+      </div>
+
+      <!-- Delivery Pin / Location Picker -->
+      <div class="nav-delivery" onclick="changeDeliveryDistrict()">
+        <i data-lucide="map-pin"></i>
+        <div class="delivery-text">
+          <span class="line-1" id="navDeliveryHeader">Delivering to Kolkata 700001</span>
+          <span class="line-2" id="navDeliveryDistrict">Bengal Agricultural Corridor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Search Bar -->
+    <div class="nav-search">
+      <select id="searchCategory" class="search-dropdown" onchange="filterCategory(this.value)">
+        <option value="all">All Crops</option>
+        <option value="VEGETABLES">Vegetables</option>
+        <option value="FRUITS">Fruits</option>
+        <option value="GRAINS_PADDY">Grains & Rice</option>
+        <option value="TUBERS">Tubers & Potatoes</option>
+        <option value="SPICES">Spices</option>
+      </select>
+      <input type="text" id="globalSearchInput" placeholder="Search direct farm produce: 'Singur Potato', 'Gobindobhog', 'Himsagar'..." oninput="handleSearchInput(this.value)" />
+      <button class="search-submit" onclick="triggerSearch()"><i data-lucide="search"></i></button>
+    </div>
+
+    <!-- Right Controls: Language Selector, Portal Badge, Account, Orders & Cart -->
+    <div class="nav-right">
+      <!-- Multilingual Switcher -->
+      <div class="lang-selector-wrap" title="Change Language / ভাষা পরিবর্তন / भाषा बदलें">
+        <i data-lucide="globe" class="lang-icon"></i>
+        <select id="langSelect" class="lang-dropdown" onchange="changeAppLanguage(this.value)">
+          <option value="en">English (EN)</option>
+          <option value="bn">বাংলা (BN)</option>
+          <option value="hi">हिंदी (HI)</option>
+        </select>
+      </div>
+
+      <!-- Account / Portal Tray -->
+      <div class="nav-item" onclick="handleNavAccountClick()" id="navAccountTray" title="Sign In / Farmer Account Profile">
+        <span class="line-1" id="navUserGreeting">Hello, Sourav</span>
+        <span class="line-2" id="navUserRole">Sign In / Hub <i data-lucide="key-round" style="width:11px;height:11px;display:inline-block;margin-left:2px;"></i></span>
+      </div>
+
+      <!-- Returns & Direct Orders -->
+      <div class="nav-item" onclick="openOrdersModal()">
+        <span class="line-1" id="navOrdersLine1">Returns</span>
+        <span class="line-2" id="navOrdersLine2">& Orders</span>
+      </div>
+
+      <!-- Slide Cart Trigger -->
+      <div class="cart-trigger" onclick="toggleCartDrawer()">
+        <div class="cart-icon-wrapper">
+          <i data-lucide="shopping-cart"></i>
+          <span id="cartCountBadge" class="cart-badge">0</span>
+        </div>
+        <span class="cart-label" id="navCartLabel">Cart</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. SECONDARY COMMERCIAL NAV (Category & Quick Links) -->
+  <nav class="sub-nav" id="secondarySubNav">
+    <div class="sub-nav-content">
+      <button class="menu-all subnav-consumer-item" id="subnavMenuAll" onclick="filterCategory('all')">
+        <i data-lucide="menu"></i> <span id="subnavMenuAllText">All Categories</span>
+      </button>
+      <ul class="nav-links">
+        <li class="subnav-consumer-item"><a href="javascript:void(0)" id="subnavVeg" onclick="filterCategory('VEGETABLES')">Fresh Vegetables</a></li>
+        <li class="subnav-consumer-item"><a href="javascript:void(0)" id="subnavFruits" onclick="filterCategory('FRUITS')">Seasonal Fruits</a></li>
+        <li class="subnav-consumer-item"><a href="javascript:void(0)" id="subnavGrains" onclick="filterCategory('GRAINS_PADDY')">Direct Grains & Rice</a></li>
+        <li class="subnav-consumer-item"><a href="javascript:void(0)" id="subnavFavFarmers" onclick="scrollToFavFarmers()"><i data-lucide="heart" class="inline-icon" style="color: #ef4444; fill: #ef4444;"></i> <span id="subnavFavFarmersText">Favourite Farmers</span></a></li>
+        <li class="subnav-logistics-item"><a href="javascript:void(0)" id="subnavLogistics" onclick="openLogisticsModal()"><i data-lucide="truck" class="inline-icon"></i> <span id="subnavLogisticsText">AI Smart Logistics</span></a></li>
+        <li class="subnav-mandi-item"><a href="javascript:void(0)" id="subnavMandi" onclick="openMandiStatsModal()"><span id="subnavMandiText">Mandi Arbitrage Engine</span></a></li>
+        <li class="subnav-consumer-item"><a href="javascript:void(0)" onclick="openAuthModal('farmer')" id="subnavFarmerHubLink" style="color: #166534; font-weight: 700; background: rgba(22, 101, 52, 0.08); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(22, 101, 52, 0.2); display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="tractor" class="inline-icon"></i> <span id="subnavFarmerHubLinkText">Farmer &amp; FPO Portal</span></a></li>
+        <li class="subnav-farmer-item" style="display: none;"><a href="javascript:void(0)" id="subnavFarmerDocs" onclick="openFarmerProfileModal('documents')"><i data-lucide="folder-check" class="inline-icon"></i> <span id="subnavFarmerDocsText">Farmer Documents Vault</span></a></li>
+        <li class="subnav-farmer-item" style="display: none;"><a href="javascript:void(0)" id="subnavFarmerInsurance" onclick="openFarmerInsuranceModal()"><i data-lucide="shield-check" class="inline-icon"></i> <span id="subnavFarmerInsuranceText">Warehouse All Risks Cover</span></a></li>
+      </ul>
+      <div class="sub-nav-right">
+        <span class="mandis-avoided subnav-consumer-item" id="retailSavingsCounter"><i data-lucide="trending-down"></i> Retail Markup Saved Today: ₹1,24,900</span>
+        <span class="farmer-live-status subnav-farmer-item" id="farmerSubnavBadge" style="display: none; color: #86efac; font-weight: 600; font-size: 12px;"><i data-lucide="check-circle-2" class="inline-icon"></i> Producer Operations Active</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 4. MAIN CONTENT AREA -->
+  <main class="page-body">
+
+    <!-- ================= VIEW 1: CONSUMER E-COMMERCE PORTAL ================= -->
+    <section id="consumerView" class="view-section active">
+
+      <!-- Commercial Hero Banner -->
+      <section class="hero-banner">
+        <div class="hero-text-content">
+          <span class="commercial-badge" id="heroCommercialBadge"><i data-lucide="award"></i> No Mandi Intermediaries • Zero Markups</span>
+          <h1 id="heroMainTitle">Fresh Harvests Shipped Direct From Verified FPOs</h1>
+          <p id="heroMainDesc">Order fresh vegetables, grains, and fruits straight from the farm gate. Direct price transparency from 150g up to 50kg wholesale lots with live freshness decay analytics.</p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" id="heroOrderBtn" onclick="scrollToProducts()">Order Harvest Fresh</button>
+            <button class="btn-hero-secondary" id="heroRouteBtn" onclick="openLogisticsModal()"><i data-lucide="navigation"></i> <span id="heroRouteBtnText">View AI Route Matrix</span></button>
+          </div>
+        </div>
+        <div class="hero-promo-cards">
+          <div class="promo-mini-card">
+            <i data-lucide="shield-check"></i>
+            <h4 id="promo1Title">Fair Price Guarantee</h4>
+            <p id="promo1Desc">Farmers earn 35% more; buyers save 40% vs APMC.</p>
+          </div>
+          <div class="promo-mini-card">
+            <i data-lucide="clock"></i>
+            <h4 id="promo2Title">&lt; 18hr Farm-to-Gate</h4>
+            <p id="promo2Desc">Green EV &amp; direct corridor dispatch.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Category Filter Chips -->
+      <section class="category-strip">
+        <div class="category-pill active" id="pillAll" onclick="filterCategory('all', this)">
+          <i data-lucide="layout-grid"></i> <span>All Crops</span>
+        </div>
+        <div class="category-pill" id="pillVeg" onclick="filterCategory('VEGETABLES', this)">
+          <i data-lucide="salad"></i> <span>Vegetables</span>
+        </div>
+        <div class="category-pill" id="pillFruits" onclick="filterCategory('FRUITS', this)">
+          <i data-lucide="apple"></i> <span>Fruits</span>
+        </div>
+        <div class="category-pill" id="pillGrains" onclick="filterCategory('GRAINS_PADDY', this)">
+          <i data-lucide="wheat"></i> <span>Grains &amp; Rice</span>
+        </div>
+        <div class="category-pill" id="pillPulses" onclick="filterCategory('PULSES', this)">
+          <i data-lucide="cookie"></i> <span>Pulses &amp; Dal</span>
+        </div>
+        <div class="category-pill" id="pillTubers" onclick="filterCategory('TUBERS', this)">
+          <i data-lucide="layers"></i> <span>Tubers &amp; Potato</span>
+        </div>
+      </section>
+
+      <!-- Frequently Bought / Reorder Section (Amazon-style Side-to-Side Slider) -->
+      <section id="frequentlyBoughtSection" class="frequently-bought-section">
+        <div class="frequently-bought-header">
+          <div class="frequently-bought-header-left">
+            <div class="freq-icon-badge">
+              <i data-lucide="repeat"></i>
+            </div>
+            <div>
+              <div class="freq-title-row">
+                <h2 id="freqBoughtTitle">Frequently Bought by You</h2>
+                <span class="freq-based-badge" id="freqBasedBadge">Based on your past orders</span>
+              </div>
+              <p class="freq-subtitle" id="freqBoughtSubtitle">Top reordered staples from verified Bengal farmgates • Hover &amp; slide to explore</p>
+            </div>
+          </div>
+          <div class="frequently-bought-header-actions">
+            <button class="btn-bundle-buy" id="btnBuyAllFreqBundle" onclick="openFreqBundleModal()">
+              <i data-lucide="shopping-bag"></i> <span id="btnBuyBundleText">1-Click Reorder Basket</span>
+            </button>
+            <div class="freq-slider-nav">
+              <button class="freq-nav-btn prev" id="freqSlidePrev" onclick="slideFreqBought(-1)" title="Slide Left" aria-label="Slide Left">
+                <i data-lucide="chevron-left"></i>
+              </button>
+              <button class="freq-nav-btn next" id="freqSlideNext" onclick="slideFreqBought(1)" title="Slide Right" aria-label="Slide Right">
+                <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Slider Track -->
+        <div class="freq-slider-container">
+          <div class="freq-slider-track" id="frequentlyBoughtTrack">
+            <!-- Populated dynamically via JS using rich product cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Favourite Farmers & Direct Farmgate Chat Hub (District-Specific) -->
+      <section id="favouriteFarmersSection" class="favourite-farmers-section">
+        <div class="fav-farmers-header">
+          <div class="fav-farmers-header-left">
+            <div class="fav-icon-badge">
+              <i data-lucide="heart"></i>
+            </div>
+            <div>
+              <div class="fav-title-row">
+                <h2 id="favFarmersTitle">Your Favourite Farmers &amp; FPO Collectives</h2>
+                <span class="fav-count-badge" id="favFarmersCountBadge">All West Bengal Districts</span>
+              </div>
+              <p class="fav-subtitle" id="favFarmersSubtitle">Direct access to verified Bengal growers • Select your district &amp; chat 1:1 in real-time</p>
+            </div>
+          </div>
+          <div class="fav-farmers-header-right">
+            <div class="fav-district-filter-wrap">
+              <label for="favDistrictSelect" class="fav-district-label" id="favDistrictSelectLabel"><i data-lucide="map-pin"></i> <span id="favDistrictLabelText">Your District:</span></label>
+              <select id="favDistrictSelect" class="fav-district-select" onchange="handleFarmerDistrictChange(this.value)">
+                <option value="all" id="optDistrictAll">All Bengal Districts (8 FPOs)</option>
+                <option value="Hooghly" id="optDistrictHooghly">Hooghly (Singur / Tarakeswar)</option>
+                <option value="Nadia" id="optDistrictNadia">Nadia (Ranaghat / Beldanga)</option>
+                <option value="Purba Bardhaman" id="optDistrictBardhaman">Purba Bardhaman (Memari / Kalna)</option>
+                <option value="Darjeeling" id="optDistrictDarjeeling">Darjeeling (Kurseong / Gorubathan)</option>
+                <option value="Malda" id="optDistrictMalda">Malda (English Bazar / Samsi)</option>
+                <option value="Murshidabad" id="optDistrictMurshidabad">Murshidabad (Baharampur / Kandi)</option>
+                <option value="South 24 Parganas" id="optDistrictSouth24">South 24 Parganas (Baruipur / Canning)</option>
+                <option value="Bankura" id="optDistrictBankura">Bankura (Bishnupur / Kotulpur)</option>
+              </select>
+            </div>
+            <span class="fav-escrow-pill" id="favEscrowPill">
+              <i data-lucide="shield-check"></i> <span id="favEscrowPillText">Direct Farmgate Escrow</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Dynamic Grid of Farmer Profiles -->
+        <div id="favouriteFarmersGrid" class="fav-farmers-grid">
+          <!-- Injected via JavaScript based on district selection -->
+        </div>
+      </section>
+
+      <!-- Product Showcase / Catalog -->
+      <section id="productCatalogSection" class="catalog-section">
+        <div class="section-title-row">
+          <div>
+            <h2 id="catalogHeading">Today's Fresh Cut Harvests</h2>
+            <p id="catalogSubtitle">Live inventory direct from West Bengal FPO collection centers &amp; farm gates</p>
+          </div>
+          <div class="sort-box">
+            <label id="catalogSortLabel">Sort By:</label>
+            <select id="catalogSortSelect" onchange="handleSort(this.value)">
+              <option value="freshness" id="sortOptFreshness">Freshness Rating (Highest First)</option>
+              <option value="price_asc" id="sortOptPriceAsc">Price: Low to High</option>
+              <option value="price_desc" id="sortOptPriceDesc">Price: High to Low</option>
+              <option value="distance" id="sortOptDistance">Nearest Farm Distance</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div id="productGrid" class="product-grid">
+          <!-- Injected via JS -->
+        </div>
+      </section>
+    </section>
+
+    <!-- ================= VIEW 2: FARMER PORTAL & OPERATION SUITE ================= -->
+    <section id="farmerView" class="view-section">
+      <!-- Farmer Quick Dashboard Header -->
+      <div class="farmer-dashboard-header">
+        <div>
+          <h2 id="farmerHeaderTitle">Farmer &amp; FPO Producer Operations Hub</h2>
+          <p id="farmerWelcomeSub">Welcome back, <strong id="farmerNameDisplay">Ananda Mondal (Singur Agro FPO)</strong> • Farm Gate: <span id="farmerDistrictDisplay">Hooghly Central Zone</span></p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button class="btn-farmer-docs" id="farmerDocsBtn" onclick="openFarmerProfileModal('documents')">
+            <i data-lucide="folder-check"></i> <span id="farmerDocsBtnText">My Documents &amp; Agreement (নথিপত্র)</span>
+          </button>
+          <button class="btn-hero-primary" id="farmerCreateListingBtn" onclick="document.getElementById('cropName').focus()">
+            <i data-lucide="plus"></i> <span id="farmerCreateListingBtnText">Create New Harvest Listing</span>
+          </button>
+          <button class="btn-farmer-docs" id="farmerLogisticsBtn" onclick="openLogisticsModal()" style="background: #1e293b; color: #fff; border-color: #334155;">
+            <i data-lucide="truck"></i> <span id="farmerLogisticsBtnText">AI Dispatch Logistics (লজিস্টিকস)</span>
+          </button>
+          <button class="btn-farmer-docs" id="farmerSwitchToConsumerBtn" onclick="switchRole('consumer')" style="background: #f8fafc; color: #166534; border-color: #86efac;">
+            <i data-lucide="refresh-cw"></i> <span>Buyer Marketplace (ক্রেতা পোর্টাল)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Farmer Documents & Produce Agreement Banner -->
+      <div class="farmer-docs-banner" id="farmerDocsBanner">
+        <div class="farmer-docs-banner-left">
+          <div class="docs-icon-badge">
+            <i data-lucide="file-check"></i>
+          </div>
+          <div>
+            <div class="docs-banner-title">
+              <span>TAZA Farmer Produce Agreement &bull; কৃষক ফসল চুক্তি</span>
+              <span class="docs-badge-signed">● Signed &amp; Active</span>
+            </div>
+            <p class="docs-banner-sub">
+              Verified signatory: <strong id="bannerFarmerName">Ananda Mondal</strong> (<span id="bannerFarmerPhone">+91 9830112233</span>) &bull; Clause 1 MSP Floor &bull; Clause 3 Direct 30-day Bank Settlement &bull; Ref: <span id="bannerAgreementRef">TZ-AGR-2026-WB</span>
+            </p>
+          </div>
+        </div>
+        <div class="farmer-docs-banner-actions">
+          <button type="button" class="btn-doc-banner-action" onclick="openFarmerAgreementModal()">
+            <i data-lucide="eye"></i> View Agreement
+          </button>
+          <button type="button" class="btn-doc-banner-action" onclick="downloadFarmerAgreement()">
+            <i data-lucide="download"></i> Download
+          </button>
+          <button type="button" class="btn-doc-banner-action btn-doc-resend" onclick="resendFarmerAgreementEmail()" id="btnResendBannerAgreement">
+            <i data-lucide="mail"></i> Resend Email
+          </button>
+          <button type="button" class="btn-doc-banner-action btn-doc-vault" onclick="openFarmerProfileModal('documents')">
+            <i data-lucide="folder-open"></i> Full Documents Vault
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Demand Forecasting & Regional Calamity Warnings -->
+      <div class="farmer-insights-strip">
+        <div class="insight-card ai">
+          <div class="insight-head">
+            <i data-lucide="trending-up"></i>
+            <h4 id="farmerAiTitle">AI Demand Predictor</h4>
+          </div>
+          <p id="farmerAiDesc">Wholesale &amp; Household demand for <strong>Jyoti Potato &amp; Pointed Gourd</strong> in Kolkata is projected to spike <strong>+38%</strong> this weekend. Suggested farmgate quote: <strong>₹21-24/kg</strong>.</p>
+        </div>
+
+        <div class="insight-card alert" id="farmerWeatherCard">
+          <div class="insight-head" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="cloud-lightning"></i>
+              <h4 id="farmerWeatherTitle">Live Disaster &amp; Weather Advisory</h4>
+            </div>
+            <span id="farmerWeatherLiveBadge" style="font-size: 10px; font-weight: 800; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; text-transform: uppercase;">● Live Sync</span>
+          </div>
+          <p id="farmerWeatherAlertText">Fetching real-time agro-meteorological metrics from Open-Meteo stations...</p>
+        </div>
+
+        <div class="insight-card route">
+          <div class="insight-head">
+            <i data-lucide="git-merge"></i>
+            <h4 id="farmerLogisticsTitle">Route Aggregation (Shared Green Logistics)</h4>
+          </div>
+          <p id="farmerLogisticsDesc">3 other farms in Singur &amp; Tarakeswar are loading EV trucks for Vashi/Kolkata corridor tomorrow. Combining shipments saves <strong>₹2,800 in fuel</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Regional Storage & Cold Vault Matrix (Simplified Farmer UI) -->
+      <div class="warehouse-matrix-card" id="warehouseFinderBanner">
+        <div class="wh-matrix-header">
+          <div class="wh-matrix-title-group">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase;">
+              <i data-lucide="warehouse"></i> Storage &amp; Cold Vault Matrix &bull; শস্য গুদাম ও কোল্ড স্টোরেজ
+            </div>
+            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 6px 0 2px 0;">Check Nearby Warehouses &amp; Storage Availability</h3>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">Verify cold vault vacancy and lock safe storage for your harvest before listing for sale.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" onclick="document.getElementById('cropName').focus()" style="background: #15803d; color: #ffffff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="arrow-down-circle" style="width: 14px; height: 14px;"></i> Jump to Listing Form
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode Tabs: 1. Nearby Cold Stores, 2. Space Calculator, 3. AI 40km Distance Finder -->
+        <div class="wh-matrix-tabs">
+          <button type="button" class="wh-tab-btn active" id="whTabCards" onclick="switchWarehouseMatrixTab('cards')">
+            <i data-lucide="building-2"></i> <span>1. Nearby Cold Stores (গুদাম তালিকা)</span>
+          </button>
+          <button type="button" class="wh-tab-btn" id="whTabCalculator" onclick="switchWarehouseMatrixTab('calculator')">
+            <i data-lucide="scale"></i> <span>2. Harvest Space Calculator (পরিমাপক)</span>
+          </button>
+          <button type="button" class="wh-tab-btn" id="whTabRadar" onclick="switchWarehouseMatrixTab('radar')">
+            <i data-lucide="radar"></i> <span>3. AI 40km Distance Finder (রাডার)</span>
+          </button>
+        </div>
+
+        <!-- Persistent Synced AI Storage Status Strip -->
+        <div id="calcAiSyncContainer" class="wh-sync-ribbon">
+          <div class="wh-sync-ribbon-top">
+            <span style="font-size: 13px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 7px;">
+              <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: #15803d;"></i>
+              <span id="calcAiWarehouseName">Synced AI Storage: Singur Cooperative Cold Hub A-1</span>
+            </span>
+            <span id="calcAiRemainingBadge" style="font-size: 12px; font-weight: 800; color: #047857; background: #dcfce7; padding: 3px 10px; border-radius: 999px; border: 1px solid #86efac;">
+              53,500 kg Remaining Vacancy (36% Available Space)
+            </span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+            <div id="calcAiProgressBar" style="width: 0.9%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.3s ease;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #475569; flex-wrap: wrap; gap: 4px;">
+            <span id="calcAiBatchText" style="font-weight: 600;">Current Harvest Batch: 500 kg (0.9% of available space)</span>
+            <span id="calcAiCapacityText" style="font-weight: 700; color: #15803d;">AI Available Space: 54,000 kg (36% DB Verified)</span>
+          </div>
+        </div>
+
+        <!-- TAB 1: Nearby Warehouses & Cold Stores List (Default View) -->
+        <div id="whViewCards" class="wh-tab-content">
+          <!-- District Filter Bar -->
+          <div class="wh-filter-bar">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <label for="whDistrictFilter" style="font-size: 12.5px; font-weight: 700; color: #1e293b;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; color: #15803d;"></i>
+                District Filter (জেলা নির্বাচন):
+              </label>
+              <select id="whDistrictFilter" onchange="renderFarmerWarehouseCards(this.value)" style="padding: 7px 14px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 13px; color: #0f172a; outline: none; background: #ffffff;">
+                <option value="all">All Bengal Hubs (সব গুদাম দেখুন)</option>
+                <option value="Hooghly" selected>Hooghly (Singur / Tarakeswar)</option>
+                <option value="Purba Bardhaman">Purba Bardhaman (Memari / Kalna)</option>
+                <option value="Nadia">Nadia (Ranaghat / Bethuadahari)</option>
+                <option value="Malda">Malda (English Bazar)</option>
+                <option value="North 24 Parganas">North 24 Parganas (Barasat)</option>
+                <option value="Darjeeling">Darjeeling (Siliguri / Kurseong)</option>
+                <option value="Bankura">Bankura (Kotulpur / Bishnupur)</option>
+              </select>
+            </div>
+            <span style="font-size: 12px; color: #64748b;">
+              💡 <em>Click 'Select' on any warehouse to lock your listing limit.</em>
+            </span>
+          </div>
+
+          <!-- Dynamic Warehouse Cards Grid -->
+          <div id="farmerWarehouseList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+            <!-- Populated via renderFarmerWarehouseCards -->
+          </div>
+        </div>
+
+        <!-- TAB 2: Harvest Space Calculator -->
+        <div id="whViewCalculator" class="wh-tab-content" style="display: none;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 12px;">
+            <div style="margin-bottom: 14px;">
+              <h4 style="margin: 0 0 4px; font-size: 16px; font-weight: 800; color: #0f172a;">
+                <i data-lucide="scale" style="width: 17px; height: 17px; color: #15803d; vertical-align: middle;"></i>
+                Simple Crop Space Fit Calculator (ফসল আয়তন পরিমাপক)
+              </h4>
+              <p style="margin: 0; font-size: 12.5px; color: #64748b;">
+                Enter your expected harvest batch in kilograms to see the required cold vault floor area and vacancy consumption.
+              </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: center;">
+              <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 5px;">Crop Type to Store (ফসলের ধরন):</label>
+                <select id="calcCropCategory" onchange="recalculateStorageFit()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 13px; font-weight: 600; background: #ffffff;">
+                  <option value="TUBERS">Tubers &amp; Potatoes (আলু / কন্দ - বস্তা)</option>
+                  <option value="VEGETABLES">Perishable Vegetables (শাকসবজি - ক্রেট)</option>
+                  <option value="FRUITS">Fruits &amp; Apples (কোল্ড ভল্ট - ফল)</option>
+                  <option value="GRAINS_PADDY">Grains &amp; Paddy (ধান / চাল - শুষ্ক স্ট্যাক)</option>
+                  <option value="SPICES">Spices &amp; Dry Goods (মশলা ও শুকনো পণ্য)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 5px;">Planned Harvest Batch (ফসল পরিমাণ - কেজি):</label>
+                <div style="position: relative;">
+                  <input type="number" id="calcPlannedKg" value="500" min="50" step="50" oninput="recalculateStorageFit()" style="width: 100%; padding: 9px 40px 9px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-size: 14px; font-weight: 800; color: #0f172a;" />
+                  <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 700; color: #64748b;">kg</span>
+                </div>
+              </div>
+
+              <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: 10px; padding: 12px 14px; text-align: center;">
+                <span style="font-size: 11px; color: #047857; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block;">Storage Footprint Needed</span>
+                <strong id="calcStorageResult" style="font-size: 17px; color: #065f46; display: block; margin-top: 2px;">~25.0 sq. ft. (~500 kg capacity)</strong>
+              </div>
+            </div>
+
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 12px; color: #64748b;">
+                💡 <em>Changing this batch size updates your harvest listing form in real-time.</em>
+              </span>
+              <button type="button" onclick="document.getElementById('cropName').focus()" style="background: #166534; color: #ffffff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                Apply to Listing Form &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: AI Proximity Radar Scanner -->
+        <div id="whViewRadar" class="wh-tab-content" style="display: none;">
+          <div class="ai-warehouse-radar-card" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); border-radius: 12px; padding: 18px 20px; color: white; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25); position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; position: relative; z-index: 2;">
+              <div>
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.18); backdrop-filter: blur(4px); padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                  <i data-lucide="radar" style="width: 13px; height: 13px;"></i> AI 40km Distance Expansion Radar (রাডার স্ক্যানার)
+                </div>
+                <h4 style="font-size: 17px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff;">Find Nearest Available Facility to Your Field</h4>
+                <p style="font-size: 12.5px; color: #a7f3d0; margin: 0; max-width: 620px;">
+                  Scans nearby facilities within <strong>40 km</strong>. If full, the AI automatically expands outward by <strong>+40 km</strong> (80 km, 120 km) until vacant space is located.
+                </p>
+              </div>
+
+              <!-- Scanner Trigger Controls -->
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 5px 12px; display: flex; align-items: center; gap: 6px;">
+                  <label for="aiFarmerOriginSelect" style="font-size: 11.5px; font-weight: 700; color: #e2e8f0;">Farm Location:</label>
+                  <select id="aiFarmerOriginSelect" style="background: transparent; border: none; color: white; font-weight: 700; font-size: 12px; outline: none; cursor: pointer;">
+                    <option value="22.81,88.23" style="color:#0f172a;" selected>Singur, Hooghly (22.81°N, 88.23°E)</option>
+                    <option value="22.88,88.02" style="color:#0f172a;">Tarakeswar, Hooghly (22.88°N, 88.02°E)</option>
+                    <option value="23.18,88.11" style="color:#0f172a;">Memari, Purba Bardhaman (23.18°N, 88.11°E)</option>
+                    <option value="23.18,88.58" style="color:#0f172a;">Ranaghat, Nadia (23.18°N, 88.58°E)</option>
+                    <option value="25.00,88.14" style="color:#0f172a;">English Bazar, Malda (25.00°N, 88.14°E)</option>
+                    <option value="22.72,88.48" style="color:#0f172a;">Barasat, N 24 Parganas (22.72°N, 88.48°E)</option>
+                    <option value="22.99,87.59" style="color:#0f172a;">Kotulpur, Bankura (22.99°N, 87.59°E)</option>
+                    <option value="26.71,88.43" style="color:#0f172a;">Siliguri, Darjeeling (26.71°N, 88.43°E)</option>
+                    <option value="DEVICE_GPS" style="color:#0f172a;">📡 My Current GPS Location</option>
+                  </select>
+                </div>
+
+                <button type="button" id="btnRunAiWarehouseScan" onclick="triggerAiWarehouseRadarScan()" style="background: #ffffff; color: #065f46; font-weight: 800; font-size: 12.5px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); transition: all 0.2s;" onmouseover="this.style.background='#ecfdf5'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#ffffff'; this.style.transform='none'">
+                  <i data-lucide="scan" style="width: 15px; height: 15px;"></i> Run AI Radius Scan
+                </button>
+              </div>
+            </div>
+
+            <!-- Radar Scanning Live Progress / Result Display -->
+            <div id="aiRadarResultsPanel" style="margin-top: 14px; background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 14px; display: none;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Farmer Operational Panels -->
+      <div class="farmer-layout">
+        <!-- New Harvest Listing Form -->
+        <div class="panel-box">
+          <div class="panel-title">
+            <i data-lucide="package-plus"></i>
+            <h3 id="farmerFormTitle">List Harvest for Consumer &amp; Bulk Sale</h3>
+          </div>
+          <form id="addCropForm" onsubmit="handleNewCropListing(event)" class="commercial-form">
+            <div class="form-field">
+              <label id="labelCropName">Crop Name &amp; Variety</label>
+              <input type="text" id="cropName" list="cropSuggestions" placeholder="e.g. Jyoti Potato, Himsagar Mango, Fresh Tomato..." autocomplete="off" required />
+              <div class="crop-quick-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+                <span class="crop-chip" id="chip1" onclick="quickSelectCrop('Jyoti Potato', 'TUBERS', 'Hooghly', 18.5)" style="cursor: pointer; font-size: 0.76rem; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 12px; border: 1px solid #bae6fd; font-weight: 500;">🥔 Jyoti Potato (₹18.50)</span>
+                <span class="crop-chip" id="chip2" onclick="quickSelectCrop('Himsagar Mango', 'FRUITS', 'Malda', 65.0)" style="cursor: pointer; font-size: 0.76rem; background: #fef3c7; color: #b45309; padding: 3px 8px; border-radius: 12px; border: 1px solid #fde68a; font-weight: 500;">🥭 Himsagar Mango (₹65.00)</span>
+                <span class="crop-chip" id="chip3" onclick="quickSelectCrop('Gobindobhog Rice', 'GRAINS_PADDY', 'Purba Bardhaman', 72.0)" style="cursor: pointer; font-size: 0.76rem; background: #fef08a; color: #854d0e; padding: 3px 8px; border-radius: 12px; border: 1px solid #fde047; font-weight: 500;">🌾 Gobindobhog Rice (₹72.00)</span>
+                <span class="crop-chip" id="chip4" onclick="quickSelectCrop('Fresh Hybrid Tomato', 'VEGETABLES', 'Hooghly', 26.0)" style="cursor: pointer; font-size: 0.76rem; background: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 12px; border: 1px solid #fecaca; font-weight: 500;">🍅 Fresh Tomato (₹26.00)</span>
+                <span class="crop-chip" id="chip5" onclick="quickSelectCrop('Green Bullet Chili', 'SPICES', 'Nadia', 60.0)" style="cursor: pointer; font-size: 0.76rem; background: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 12px; border: 1px solid #bbf7d0; font-weight: 500;">🌶️ Green Chili (₹60.00)</span>
+                <span class="crop-chip" id="chip6" onclick="quickSelectCrop('White Garlic', 'SPICES', 'Nadia', 110.0)" style="cursor: pointer; font-size: 0.76rem; background: #f1f5f9; color: #334155; padding: 3px 8px; border-radius: 12px; border: 1px solid #cbd5e1; font-weight: 500;">🧄 White Garlic (₹110.00)</span>
+                <span class="crop-chip" id="chip7" onclick="quickSelectCrop('Large Cardamom', 'SPICES', 'Darjeeling', 950.0)" style="cursor: pointer; font-size: 0.76rem; background: #fae8ff; color: #86198f; padding: 3px 8px; border-radius: 12px; border: 1px solid #f5d0fe; font-weight: 500;">🌿 Large Cardamom (₹950.00)</span>
+              </div>
+              <datalist id="cropSuggestions">
+                <option value="Jyoti Potato">
+                <option value="Chandramukhi Potato">
+                <option value="Sweet Potato (Ranga Aloo)">
+                <option value="Taro Root (Gathi Kochu)">
+                <option value="Elephant Foot Yam (Ol Kochu)">
+                <option value="Pointed Gourd (Potol)">
+                <option value="Cauliflower (Phool Gobhi)">
+                <option value="Cabbage (Bandha Gobhi)">
+                <option value="Fresh Hybrid Tomato">
+                <option value="Red Onion (Peyaj)">
+                <option value="Muktakeshi Brinjal (Begun)">
+                <option value="Ladyfinger (Bhindi / Dherosh)">
+                <option value="Green Tender Peas (Motor Shuti)">
+                <option value="Bitter Gourd (Karela / Uchhe)">
+                <option value="Bottle Gourd (Lau)">
+                <option value="Ridge Gourd (Jhinge)">
+                <option value="Sweet Pumpkin (Kumro)">
+                <option value="Fresh Spinach (Palong Shak)">
+                <option value="Crisp Salad Cucumber (Shosha)">
+                <option value="Green Bell Capsicum (Shimla Mirch)">
+                <option value="Fresh Orange Carrot (Gajar)">
+                <option value="White Radish (Mula)">
+                <option value="French Beans">
+                <option value="Tender Drumsticks (Sojne Danta)">
+                <option value="Himsagar Mango">
+                <option value="Langra Mango">
+                <option value="Fazli Mango">
+                <option value="Gopalbhog Mango">
+                <option value="Amrapali Mango">
+                <option value="Darjeeling Mandarin Orange">
+                <option value="Bengal Martaman Banana">
+                <option value="Bombai Litchi">
+                <option value="Baruipur Sweet Guava (Peyara)">
+                <option value="Raw Green Papaya (Pepe)">
+                <option value="Queen Sweet Pineapple">
+                <option value="Sundarbans Watermelon (Tormuj)">
+                <option value="Raw Tender Jackfruit (Enchor)">
+                <option value="Gobindobhog Rice">
+                <option value="Minikit Rice">
+                <option value="Swarna Rice (Paddy)">
+                <option value="Ratna Boro Rice">
+                <option value="Sharbati Wheat">
+                <option value="Yellow Feed Maize (Corn)">
+                <option value="Green Gram (Moong Dal)">
+                <option value="Red Lentil (Masoor Dal)">
+                <option value="Green Bullet Chili (Kacha Lanka)">
+                <option value="Fresh Mountain Ginger (Adrak)">
+                <option value="White Garlic (Rosun)">
+                <option value="Raw Turmeric (Kacha Haldi)">
+                <option value="Yellow Mustard (Shorshe)">
+                <option value="Large Cardamom (Alainchi)">
+                <option value="Coriander Seeds (Dhone)">
+                <option value="Tossa Golden Jute">
+              </datalist>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label id="labelCategory">Category</label>
+                <select id="cropCategory" required>
+                  <option value="VEGETABLES" id="optVeg">Vegetables</option>
+                  <option value="FRUITS" id="optFruits">Fruits</option>
+                  <option value="GRAINS_PADDY" id="optGrains">Grains &amp; Rice</option>
+                  <option value="TUBERS" id="optTubers">Tubers &amp; Roots</option>
+                  <option value="SPICES" id="optSpices">Spices</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label id="labelStock">Available Stock (kg)</label>
+                <input type="number" id="cropQuantity" placeholder="e.g. 500" min="1" step="0.5" oninput="syncListingStockWithAiStorage(this.value); updateInsurancePreview();" required />
+                <!-- Synchronized AI Storage Status Badge -->
+                <div id="cropAiSyncNotice" style="margin-top: 5px; font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 8px; border-radius: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;">
+                  <span id="cropAiSyncText"><i data-lucide="check-circle" style="width: 12px; height: 12px; display: inline-block; vertical-align: -1px;"></i> Synced with AI Hub (42,500 kg cap)</span>
+                  <span id="cropAiSyncPct" style="font-weight: 700; color: #047857;">1.2% filled</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Harvest Date & Time Input with Real-Time Freshness Tally Indicator -->
+            <div class="form-field" style="margin-bottom: 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                <label id="labelHarvestTime" for="cropHarvestTimestamp" style="font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; margin: 0;">
+                  <i data-lucide="calendar-clock" style="width: 16px; height: 16px; color: #16a34a;"></i>
+                  <span>Harvest Date &amp; Time (ফসল তোলার তারিখ ও সময়)</span>
+                </label>
+                <span id="harvestTimeElapsedBadge" style="font-size: 0.72rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 12px; font-weight: 600;">
+                  ⏱️ Fresh Cut: 0.0 hrs ago
+                </span>
+              </div>
+              
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <input type="datetime-local" id="cropHarvestTimestamp" style="flex: 1; min-width: 220px; padding: 8px 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; background: #ffffff;" oninput="updateListingFreshnessPreview()" onchange="updateListingFreshnessPreview()" required />
+                <div class="harvest-quick-presets" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                  <button type="button" class="btn-xs-pill" onclick="setHarvestTimePreset(0)" style="font-size: 0.73rem; background: #ffffff; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: #334155; font-weight: 600;">⚡ Just Harvested</button>
+                  <button type="button" class="btn-xs-pill" onclick="setHarvestTimePreset(2)" style="font-size: 0.73rem; background: #ffffff; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: #334155; font-weight: 600;">2h Ago</button>
+                  <button type="button" class="btn-xs-pill" onclick="setHarvestTimePreset(6)" style="font-size: 0.73rem; background: #ffffff; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: #334155; font-weight: 600;">6h (Morning)</button>
+                  <button type="button" class="btn-xs-pill" onclick="setHarvestTimePreset(24)" style="font-size: 0.73rem; background: #ffffff; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: #334155; font-weight: 600;">Yesterday</button>
+                </div>
+              </div>
+
+              <!-- Live Freshness Index Tally Card -->
+              <div id="listingFreshnessCard" style="margin-top: 10px; background: #ffffff; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <div>
+                  <div style="font-size: 0.72rem; color: #64748b;" id="labelLiveFreshnessTitle">Real-Time Biological Freshness Index [e^(-λ·t)]</div>
+                  <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 2px;">
+                    <span id="previewFreshnessNumber" style="font-size: 1.15rem; font-weight: 800; color: #15803d;">97.0%</span>
+                    <span id="previewFreshnessGrade" style="font-size: 0.72rem; font-weight: 700; color: #166534; background: #dcfce7; padding: 1px 7px; border-radius: 999px;">Ultra Farm-Fresh</span>
+                  </div>
+                </div>
+                <div style="flex: 1; min-width: 140px; max-width: 240px;">
+                  <div style="height: 7px; width: 100%; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                    <div id="previewFreshnessBar" style="height: 100%; width: 97%; background: #16a34a; transition: width 0.3s, background 0.3s;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #94a3b8; margin-top: 2px;">
+                    <span>Transit: +2.0h</span>
+                    <span id="previewFreshnessDecayNote">λ = 0.015</span>
+                  </div>
+                </div>
+              </div>
+              <small style="color: #64748b; font-size: 0.74rem; margin-top: 5px; display: block;" id="helperHarvestTime">
+                💡 Tallying harvest time against current clock computes the live freshness index and guarantees consumer quality upon delivery.
+              </small>
+            </div>
+
+            <!-- Stock-Market Style Farmer Pricing Choice Selector -->
+            <div class="form-field" style="margin-bottom: 12px;">
+              <label id="labelPricingStrategy" style="font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                <span><i data-lucide="trending-up" style="width: 15px; height: 15px; display: inline-block; vertical-align: -2px; margin-right: 4px; color: #15803d;"></i> <span id="pricingChoiceTitle">Daily Pricing Strategy (দিনের বাজার দর মডেল)</span></span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <button type="button" class="pricing-guide-header-btn" onclick="openPricingStrategyInfoModal('ALL', event)" title="Open Pricing Guide & 20% Profit Surge Calculator">
+                    <i data-lucide="help-circle" style="width: 13px; height: 13px; display: inline-block; vertical-align: -1px;"></i>
+                    <span id="btnPricingGuideText">Pricing Guide &amp; 20% Surge Calculator</span>
+                  </button>
+                  <span style="font-size: 0.72rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Stock-Market Model</span>
+                </div>
+              </label>
+              <div class="pricing-strategy-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label class="pricing-card-option selected" id="optDynamicPegLabel" onclick="setListingPricingStrategy('DYNAMIC_MANDI_PEG')" style="display: flex; flex-direction: column; padding: 10px 12px; border: 2px solid #16a34a; border-radius: 8px; background: #f0fdf4; cursor: pointer; transition: all 0.2s; position: relative;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #15803d;">
+                      <input type="radio" name="cropPricingStrategyRadio" id="stratDynamicPeg" value="DYNAMIC_MANDI_PEG" checked style="accent-color: #16a34a;" onchange="updateDynamicPricingPreview()" />
+                      <span id="optDynamicPegTitle">📈 Dynamic Daily Market Peg</span>
+                    </div>
+                    <button type="button" class="pricing-info-icon-btn" onclick="openPricingStrategyInfoModal('DYNAMIC_MANDI_PEG', event)" title="Dynamic Pricing Information & 20% Profit Share Guide">
+                      <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+                    </button>
+                  </div>
+                  <small id="optDynamicPegSub" style="color: #475569; font-size: 0.73rem; margin-top: 4px; line-height: 1.3;">
+                    Tracks daily Mandi movements + <strong style="color: #15803d;">20% profit share bonus</strong> when market is high!
+                  </small>
+                </label>
+                <label class="pricing-card-option" id="optFixedPriceLabel" onclick="setListingPricingStrategy('FIXED_PRICE')" style="display: flex; flex-direction: column; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #f8fafc; cursor: pointer; transition: all 0.2s; position: relative;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; color: #334155;">
+                      <input type="radio" name="cropPricingStrategyRadio" id="stratFixedPrice" value="FIXED_PRICE" style="accent-color: #16a34a;" onchange="updateDynamicPricingPreview()" />
+                      <span id="optFixedPriceTitle">🔒 Fixed Farm Gate Price</span>
+                    </div>
+                    <button type="button" class="pricing-info-icon-btn" onclick="openPricingStrategyInfoModal('FIXED_PRICE', event)" title="Fixed Pricing Information">
+                      <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+                    </button>
+                  </div>
+                  <small id="optFixedPriceSub" style="color: #64748b; font-size: 0.73rem; margin-top: 4px; line-height: 1.3;">
+                    Lock a steady, constant price per kg that never changes regardless of daily market swings.
+                  </small>
+                </label>
+              </div>
+
+              <!-- High-Market Surge Scenario Box (20% Profit Sharing Live Simulator) -->
+              <div id="pricingScenarioBox" class="pricing-scenario-box" style="margin-top: 10px; border-radius: 8px; border: 1px solid #86efac; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); padding: 10px 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                  <span style="font-weight: 700; font-size: 0.82rem; color: #065f46; display: flex; align-items: center; gap: 5px;">
+                    <i data-lucide="sparkles" style="width: 14px; height: 14px; color: #16a34a;"></i>
+                    <span id="scenarioBoxTitle">20% Market High Profit Share Scenario (বাজার দর বৃদ্ধি লাভ অংশীদারিত্ব)</span>
+                  </span>
+                  <div class="scenario-btn-group" style="display: flex; gap: 5px;">
+                    <button type="button" class="scenario-pill-btn" id="btnScenarioNormal" onclick="selectPricingScenario('NORMAL', event)">
+                      🌤️ Normal Market
+                    </button>
+                    <button type="button" class="scenario-pill-btn active" id="btnScenarioSurge10" onclick="selectPricingScenario('HIGH_10', event)">
+                      🚀 High Surge (+₹10/kg)
+                    </button>
+                    <button type="button" class="scenario-pill-btn" id="btnScenarioSurge15" onclick="selectPricingScenario('HIGH_15', event)">
+                      🔥 Festival Spike (+₹15/kg)
+                    </button>
+                  </div>
+                </div>
+
+                <div id="scenarioLiveResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 6px;">
+                  <div class="scenario-metric-card" style="background: white; border: 1px solid #bbf7d0; border-radius: 6px; padding: 7px 10px; text-align: center;">
+                    <div style="font-size: 0.70rem; color: #64748b; font-weight: 600;" id="lblMandiRate">Mandi Benchmark</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-top: 2px;" id="valMandiRate">₹35.00/kg</div>
+                    <small style="font-size: 0.68rem; color: #16a34a; font-weight: 700;" id="valMarketSpike">+₹10.00 spike</small>
+                  </div>
+                  <div class="scenario-metric-card" style="background: #ecfdf5; border: 1.5px solid #16a34a; border-radius: 6px; padding: 7px 10px; text-align: center;">
+                    <div style="font-size: 0.70rem; color: #065f46; font-weight: 700;" id="lblFarmerProfitShare">Farmer 20% Profit Share</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #15803d; margin-top: 2px;" id="valFarmerProfitShare">+₹2.00/kg</div>
+                    <small style="font-size: 0.68rem; color: #047857; font-weight: 600;" id="valSurgeBonusBadge">🎉 20% Surge Bonus</small>
+                  </div>
+                  <div class="scenario-metric-card" style="background: white; border: 1px solid #bbf7d0; border-radius: 6px; padding: 7px 10px; text-align: center;">
+                    <div style="font-size: 0.70rem; color: #64748b; font-weight: 600;" id="lblFinalFarmerPayout">Your Realized Payout</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-top: 2px;" id="valFinalFarmerPayout">₹27.00/kg</div>
+                    <small style="font-size: 0.68rem; color: #15803d; font-weight: 700;" id="valFarmerGainPct">+8.0% payout gain</small>
+                  </div>
+                  <div class="scenario-metric-card" style="background: #fefce8; border: 1px solid #fef08a; border-radius: 6px; padding: 7px 10px; text-align: center;">
+                    <div style="font-size: 0.70rem; color: #854d0e; font-weight: 600;" id="lblExtraLotEarnings">Extra Cash on Batch</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #a16207; margin-top: 2px;" id="valExtraLotEarnings">+₹1,000.00</div>
+                    <small style="font-size: 0.68rem; color: #ca8a04; font-weight: 600;" id="valBatchQtyRef">for 500 kg harvest</small>
+                  </div>
+                </div>
+
+                <div id="scenarioExplanationText" style="margin-top: 8px; font-size: 0.75rem; color: #065f46; background: rgba(255,255,255,0.75); border-radius: 5px; padding: 6px 10px; line-height: 1.4;">
+                  🚀 <strong>High Market Surge Active:</strong> Wholesale Mandi prices spiked +₹10.00/kg. Under TAZA Dynamic Pricing, you automatically receive a <strong>20% profit share bonus (+₹2.00/kg)</strong> directly on top of your baseline! Under Fixed Price, you would receive ₹0 extra.
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label id="labelPrice">Base Target Price (₹/kg)</label>
+                <input type="number" id="cropPrice" placeholder="e.g. 21.50" step="0.5" min="1" oninput="updateInsurancePreview(); updateDynamicPricingPreview();" required />
+                <small style="color:#64748b; font-size: 0.78rem;" id="helperNetPayout">Baseline target payout without middleman cuts.</small>
+              </div>
+              <div class="form-field">
+                <label id="labelPriceFloor" style="display: flex; align-items: center; justify-content: space-between;">
+                  <span id="labelFloorText">🛡️ Minimum Price Floor (MSP ₹/kg)</span>
+                  <span style="font-size: 0.7rem; color: #64748b;">(Optional Safety Net)</span>
+                </label>
+                <input type="number" id="cropMinPriceFloor" placeholder="e.g. 19.00" step="0.5" min="0" oninput="updateDynamicPricingPreview()" />
+                <small style="color:#64748b; font-size: 0.78rem;" id="helperPriceFloor">Produce will never sell below this floor even in market dips.</small>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label id="labelMinQty">Minimum Order (kg)</label>
+                <input type="number" id="cropMinQty" value="0.5" min="0.15" step="0.05" required />
+                <small style="color:#64748b; font-size: 0.78rem;" id="helperMinQty">Lowest purchase quantity for consumers.</small>
+              </div>
+              <div class="form-field" style="display: flex; flex-direction: column; justify-content: flex-end;">
+                <!-- Dynamic Market Price Live Indicator Box -->
+                <div id="dynamicPricingPreviewStrip" style="display: flex; align-items: center; justify-content: space-between; background: #ecfdf5; border: 1px dashed #86efac; border-radius: 6px; padding: 7px 12px; margin-bottom: 2px; font-size: 0.8rem;">
+                  <span id="previewStripLabel" style="color: #065f46; font-weight: 600;">
+                    <i data-lucide="activity" style="width: 13px; height: 13px; display: inline-block; vertical-align: -2px; margin-right: 3px;"></i>
+                    Today's Dynamic Market Price:
+                  </span>
+                  <span id="previewDynamicRateText" style="font-weight: 800; color: #15803d; font-size: 0.92rem;">
+                    ₹--/kg <span class="stock-trend-pill up" style="font-size: 0.7rem; margin-left: 4px;">▲ Live</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Automated APMC Mandi Benchmark Card (Live Database Sync) -->
+            <div class="mandi-auto-card" id="mandiBenchmarkCard" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin: 12px 0 16px 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px;" id="mandiCardTitle">
+                  <i data-lucide="database" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-right: 4px;"></i>
+                  Official Mandi APMC Benchmark (Database Auto-Calculated)
+                </span>
+                <span id="mandiLiveTag" style="font-size: 0.75rem; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Agmarknet WB Live</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px;" id="mandiBenchmarkStats">
+                <div style="background: white; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                  <div style="font-size: 0.72rem; color: #64748b;" id="mandiModalLabel">Mandi Modal Price</div>
+                  <strong id="liveMandiModalPrice" style="color: #0f172a; font-size: 1rem;">₹15.00/kg</strong>
+                </div>
+                <div style="background: white; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                  <div style="font-size: 0.72rem; color: #64748b;" id="mandiRetailLabel">Est. City Retail Rate</div>
+                  <strong id="liveEstimatedRetailPrice" style="color: #475569; font-size: 1rem;">₹24.00/kg</strong>
+                </div>
+                <div style="background: #ecfdf5; padding: 8px; border-radius: 6px; border: 1px solid #a7f3d0;">
+                  <div style="font-size: 0.72rem; color: #065f46;" id="mandiAdvantageLabel">Farmer Direct Advantage</div>
+                  <strong id="liveFarmerGainBadge" style="color: #047857; font-size: 1rem;">+25% Direct</strong>
+                </div>
+              </div>
+              <p id="mandiSourceInfo" style="margin: 8px 0 0 0; font-size: 0.75rem; color: #475569; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                <span><span id="mandiMarketLabel">Market:</span> <strong id="liveMandiName">Singur Regulated Market APMC</strong></span>
+                <span id="liveConsumerSavingsText" style="color: #15803d; font-weight: 600;">Consumer saves 31% vs street retail</span>
+              </p>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label id="labelDistrict">Production District</label>
+                <select id="cropDistrict">
+                  <option value="Hooghly">Hooghly (Singur / Tarakeswar)</option>
+                  <option value="Nadia">Nadia (Ranaghat / Bethuadahari)</option>
+                  <option value="Purba Bardhaman">Purba Bardhaman (Memari / Kalna)</option>
+                  <option value="Malda">Malda (English Bazar)</option>
+                  <option value="Murshidabad">Murshidabad</option>
+                  <option value="Darjeeling">Darjeeling</option>
+                  <option value="South 24 Parganas">South 24 Parganas (Baruipur / Canning)</option>
+                  <option value="North 24 Parganas">North 24 Parganas (Barasat / Habra)</option>
+                  <option value="Bankura">Bankura (Kotulpur)</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label id="labelDescription">Crop Description &amp; Organic Certification</label>
+                <input type="text" id="cropDescription" placeholder="e.g. Freshly dug unwashed alluvial soil potatoes, zero pesticides" />
+              </div>
+            </div>
+
+            <!-- Warehouse Storage Damage All Risks Insurance Cover (Policy & Claim Safeguard) -->
+            <div class="crop-insurance-box" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 1.5px solid #86efac; border-radius: 10px; padding: 14px 16px; margin: 14px 0 16px 0; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.06);">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 260px;">
+                  <input type="checkbox" id="cropInsuranceOptIn" checked style="width: 18px; height: 18px; accent-color: #16a34a; margin-top: 3px; cursor: pointer;" onchange="toggleInsuranceDetails(this.checked)" />
+                  <div>
+                    <label for="cropInsuranceOptIn" style="font-size: 13.5px; font-weight: 700; color: #0f172a; cursor: pointer; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                      <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #16a34a;"></i>
+                      <span>Warehouse Storage All Risks Insurance Cover (গুদামজাত শস্য বীমা)</span>
+                      <span style="background: #dcfce7; color: #15803d; font-size: 10.5px; font-weight: 800; padding: 1px 7px; border-radius: 999px; text-transform: uppercase;">Zero Upfront Premium</span>
+                    </label>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: #475569; line-height: 1.45;">
+                      Protects your harvest lot against fortuitous physical loss or damage while stored in the warehouse: 
+                      <strong>Clause 21 Spoilage Cover</strong> (cooling breakdown, humidity failure, water leakage) &amp; 
+                      <strong>Clause 22 Claim Protection</strong> (fire, explosion, pest infestation, transit damage).
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="openFarmerInsuranceModal()" style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; font-size: 11.5px; font-weight: 700; color: #15803d; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;">
+                  <i data-lucide="file-text" style="width: 13px; height: 13px;"></i> View Policy &amp; Claims
+                </button>
+              </div>
+
+              <!-- Insurance Coverage Dynamic Summary Details -->
+              <div id="cropInsuranceDetailsPanel" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #bbf7d0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 11.5px; color: #334155;">
+                <div>
+                  <span style="color: #64748b;">Estimated Sum Insured:</span> 
+                  <strong id="insuranceSumInsuredPreview" style="color: #0f172a;">₹9,250.00</strong> (Batch &times; Farm Gate Price)
+                </div>
+                <div>
+                  <span style="color: #64748b;">Statutory Policy:</span> 
+                  <strong style="color: #16a34a;">Archived in Documents Folder</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b;">Direct Claims Sync:</span> 
+                  <strong style="color: #15803d;">MongoDB <code>insurancerefunds</code> Active</strong>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit-green" id="btnPublishCrop">Publish Directly to Live Store</button>
+          </form>
+        </div>
+
+        <!-- Direct Orders & 1:1 Buyer Contacts -->
+        <div class="panel-box">
+          <div class="panel-title">
+            <i data-lucide="clipboard-list"></i>
+            <h3 id="farmerOrdersSectionTitle">Direct Incoming Orders (Zero Brokers)</h3>
+          </div>
+          
+          <div class="incoming-orders-list" id="farmerIncomingOrdersList">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 5. COMMERCIAL FOOTER ================= -->
+  <footer class="commercial-footer">
+    <div class="footer-back-to-top" id="footerBackToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+      Back to top
+    </div>
+    
+    <div class="footer-columns">
+      <div class="footer-col">
+        <h5 id="footerCol1Title">Get to Know Us</h5>
+        <ul>
+          <li><a href="#" id="fLinkAbout">About TAZA Agri-Tech</a></li>
+          <li><a href="#" id="fLinkFpo">FPO Empowerment Mission</a></li>
+          <li><a href="#" id="fLinkZero">Zero Intermediary Charter</a></li>
+          <li><a href="#" id="fLinkDisaster">Calamity Disaster Fund</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 id="footerCol2Title">Connect with Farmers</h5>
+        <ul>
+          <li><a href="#" id="fLinkProducers">Verified Bengal Producer Groups</a></li>
+          <li><a href="#" id="fLinkHubs">Regional Agro Hubs (Singur/Memari)</a></li>
+          <li><a href="#" id="fLinkCalendar">Harvest Calendar &amp; Yields</a></li>
+          <li><a href="#" id="fLinkInquiries">Direct 1:1 Inquiries</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 id="footerCol3Title">Make Money with Us</h5>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="openAuthModal('farmer')" id="fLinkRegister">Farmer &amp; FPO Portal Sign In</a></li>
+          <li><a href="javascript:void(0)" onclick="openAuthModal('consumer')" id="fLinkCandidate">Consumer Sign In / Sign Up</a></li>
+          <li><a href="javascript:void(0)" onclick="openLogisticsModal()" id="fLinkGreenFleet">Partner with Farm Green Fleet</a></li>
+          <li><a href="javascript:void(0)" onclick="openLogisticsModal()" id="fLinkAiFleet">AI Fleet Operator Program</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5 id="footerCol4Title">Assurance &amp; Protection</h5>
+        <ul>
+          <li><a href="#" id="fLinkPriceTrans">Direct Price Transparency</a></li>
+          <li><a href="#" id="fLinkInsurance">Transit Spoilage Insurance</a></li>
+          <li><a href="#" id="fLinkEscrow">Escrow Payout Guarantee</a></li>
+          <li><a href="/docs" target="_blank" id="fLinkDocs">OpenAPI Backend Specs (/docs)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-brand">
+        <i data-lucide="sprout"></i>
+        <span id="footerBottomBrand">TAZA Fair-Trade E-Commerce &amp; Logistics Network • West Bengal, India</span>
+      </div>
+      <p id="footerBottomCopy">© 2026 TAZA Agri-Tech Platform. Direct farm-to-table system with zero middlemen markup.</p>
+    </div>
+  </footer>
+
+  <!-- ================= 6. SLIDE-OUT CART DRAWER ================= -->
+  <div id="cartDrawer" class="cart-drawer-backdrop" onclick="closeCartDrawer(event)">
+    <div class="cart-drawer">
+      <div class="drawer-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i data-lucide="shopping-cart" style="color:#15803d;"></i>
+          <h3 id="cartDrawerTitle">Your Direct Farm Cart</h3>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="btn-clear-cart" id="btnClearAll" onclick="clearCart()" title="Clear Cart">Clear All</button>
+          <button class="drawer-close" onclick="toggleCartDrawer()">✕</button>
+        </div>
+      </div>
+      <div id="cartDrawerItems" class="drawer-items">
+        <!-- Injected via JS -->
+      </div>
+      <div class="drawer-footer">
+        <div class="drawer-breakdown">
+          <div class="drawer-line-item">
+            <span id="labelProduceSubtotal">Produce Subtotal:</span>
+            <strong id="cartSubtotal">₹0.00</strong>
+          </div>
+          <div class="drawer-line-item">
+            <span id="labelPlatformFee">Platform Fee (2% Fair Trade):</span>
+            <span id="cartPlatformFee">₹0.00</span>
+          </div>
+          <div class="drawer-line-item">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span id="labelDelivery">Delivery (Travel Vendor):</span>
+              <small id="cartTravelVendor" style="font-size:10px; color:#0284c7; font-weight:600; display:flex; align-items:center; gap:3px;">
+                <i data-lucide="truck" style="width:11px;height:11px;"></i> Bengal Rural Travel Express
+              </small>
+              <small style="font-size:10px; color:#64748b;">(₹35.00 - ₹65.00 tiered by harvest qty)</small>
+            </div>
+            <div style="text-align:right;">
+              <span id="cartDeliveryFee" style="color: #0f172a; font-weight: 700;">₹0.00</span>
+              <div id="cartDeliverySubsidyBadge" style="font-size:10px; color:#16a34a; font-weight:600; display:none;"></div>
+            </div>
+          </div>
+          <div class="drawer-line-item drawer-retail-row" style="border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 4px;">
+            <span id="labelCartCityRetail">City Mandi Retail Value:</span>
+            <span id="cartCityRetailTotal" style="text-decoration: line-through; color: #64748b; font-weight: 600;">₹0.00</span>
+          </div>
+          <div class="drawer-total-row">
+            <span id="labelTotalPayable">Total Payable:</span>
+            <strong id="cartTotalPayable" style="color: #15803d; font-size: 18px;">₹0.00</strong>
+          </div>
+        </div>
+        <div id="cartRetailCeilingBanner" class="cart-retail-ceiling-pill" style="display:none;">
+          <i data-lucide="shield-check" style="width:13px; height:13px; color:#16a34a; flex-shrink:0;"></i>
+          <span id="cartRetailCeilingMsg">City Retail Price Ceiling Active: Your total order never exceeds street retail.</span>
+        </div>
+        <p class="drawer-savings" id="cartTotalSavings">You are saving ₹0.00 compared to mandi retail rates!</p>
+        <button class="btn-checkout" id="btnCheckout" onclick="proceedToCheckout()">
+          Proceed to Direct Farm Checkout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 7. PRODUCT DETAIL MODAL ================= -->
+  <div id="productModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'productModal')">
+    <div class="modal-dialog">
+      <div class="modal-close" onclick="closeProductModal()">✕</div>
+      <div class="modal-grid">
+        <div class="modal-image-pane">
+          <img id="modalProductImg" src="" alt="Crop" />
+          <div class="modal-freshness-tag" id="modalFreshnessTag">98% Certified Fresh</div>
+        </div>
+        
+        <div class="modal-info-pane">
+          <span class="modal-fpo-badge" id="modalFarmerBadge">Singur Agro FPO</span>
+          <h2 id="modalCropName">Product Name</h2>
+          <p class="modal-location" id="modalFarmLocation"><i data-lucide="map-pin"></i> Farm Gate: Hooghly, West Bengal</p>
+          
+          <div class="modal-specs-table">
+            <div class="spec-cell">
+              <span class="spec-label" id="labelSpecHarvested">Harvested</span>
+              <strong id="modalHarvestTimestamp">Today, 5:30 AM</strong>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-label" id="labelSpecDelivery">Delivery Speed</span>
+              <strong id="modalDeliverySpeed">Express Cold Chain (&lt; 18h)</strong>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-label" id="labelSpecSeason">Season / District</span>
+              <strong id="modalSeason">Rabi Peak Harvest</strong>
+            </div>
+          </div>
+
+          <!-- Freshness Decay & Transit Spoilage Avoidance Engine -->
+          <div class="modal-freshness-formula-card" id="modalFreshnessFormulaCard" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; margin:14px 0; font-size:12px; color:#166534;">
+            <div style="font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
+              <span style="display:inline-flex; align-items:center; gap:5px;">
+                <i data-lucide="activity" style="width:13px;height:13px;color:#16a34a;"></i>
+                <span id="labelFreshnessFormulaHead">Freshness Index Formula: 100 × e^(-λ · t)</span>
+              </span>
+              <span class="badge-transit-safe" style="font-size:10.5px; font-weight:700; background:#dcfce7; color:#15803d; border:1px solid #86efac; border-radius:4px; padding:1px 6px;">
+                ✓ Spoilage-Free Transit Guard
+              </span>
+            </div>
+            <div id="modalFreshnessFormulaExplanation" style="color:#15803d; line-height:1.45; font-size:11.5px;">
+              Decay parameter <em>t</em> = <strong>Harvest Age</strong> (<span id="modalHarvestAgeHours">2.0h</span>) + <strong>Expected Consumer Delivery Time</strong> (<span id="modalTransitHours">1.5h</span>) = <strong id="modalTotalDecayTime">3.5h total</strong> to avoid crop spoilage during transit.
+            </div>
+          </div>
+
+          <!-- Price Arbitrage / Anti-Middlemen Highlight -->
+          <div class="modal-price-card">
+            <div class="price-header">
+              <span class="retail-crossed" id="modalRetailPrice">Mandi Retail: ₹24.00/kg</span>
+              <span class="you-save-pill" id="modalSavings">Save 31% Directly</span>
+            </div>
+            <div class="direct-price-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span class="big-price" id="modalDirectPrice">₹16.50</span>
+                <span class="per-unit" id="modalUnitDisplay">/ kg (Direct Farm Gate Price)</span>
+              </div>
+              <span id="modalStockTrendBadge" class="stock-trend-pill up">📈 Live Market Peg</span>
+            </div>
+          </div>
+
+          <!-- Variable Quantity Selection: 150g (0.15kg) to 50kg wholesale -->
+          <div class="qty-controller-box">
+            <label id="labelModalSelectQty">Select Desired Quantity (<span id="modalMinMaxRange">Min 0.15 kg - Max 50 kg</span>)</label>
+            <div class="qty-input-group">
+              <input type="number" id="modalQtyInput" min="0.15" max="50" step="0.1" value="1" oninput="calculateModalTotal()" />
+              <span class="unit-tag" id="modalUnitLabel">kg</span>
+              <div class="calculated-price">
+                <span id="labelModalComputedTotal">Calculated Total:</span>
+                <strong id="modalComputedTotal">₹21.50</strong>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-modal-add" id="btnModalAddToCart" onclick="addModalItemToCart()">
+            <i data-lucide="shopping-cart"></i> <span id="btnModalAddToCartText">Add Direct Farm Order to Cart</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 8. AI LOGISTICS ROUTE OPTIMIZER MODAL ================= -->
+  <div id="logisticsModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'logisticsModal')">
+    <div class="modal-dialog logistics-dialog">
+      <div class="modal-close" onclick="closeLogisticsModal()">✕</div>
+      <div class="logistics-header">
+        <div class="logistics-icon-tag" id="logisticsEngineTag"><i data-lucide="cpu"></i> AI Logistics Engine</div>
+        <h2 id="logisticsHeading">Direct Farm Route &amp; Flood Rerouting Matrix</h2>
+        <p><span id="logisticsConsignmentLabel">Live Dispatch Consignment ID:</span> <strong id="logisticsConsignmentId">#TZ-LOG-HGL-7821</strong></p>
+        <!-- Dynamic Role Perspective Indicator -->
+        <div class="logistics-perspective-badge farmer" id="logisticsPerspectiveBadge">
+          <i data-lucide="compass"></i> <span id="perspectiveBadgeText">🌾 Farmer Mode: Farm Gate (Pickup) ➔ Central Distribution Hub (Drop)</span>
+        </div>
+      </div>
+
+      <!-- District & Destination Controls with Interchange Action -->
+      <div class="logistics-controls-bar" id="logisticsControlsBar">
+        <div class="control-group" id="logisticsOriginGroup" style="flex: 1;">
+          <label id="logisticsOriginLabel"><i data-lucide="map-pin"></i> Origin District (Farm Hub):</label>
+          <select id="logisticsDistrictSelect" class="control-select" onchange="handleLogisticsDistrictChange(this.value)">
+            <option value="hooghly">Hooghly (Singur / Tarakeswar)</option>
+            <option value="bardhaman">Purba Bardhaman (Memari / Kalna)</option>
+            <option value="nadia">Nadia (Ranaghat / Bethuadahari)</option>
+            <option value="murshidabad">Murshidabad (Beldanga / Berhampore)</option>
+            <option value="malda">Malda (English Bazar / Chanchal)</option>
+            <option value="darjeeling">Darjeeling (Kurseong / Siliguri)</option>
+            <option value="south24">South 24 Parganas (Baruipur / Canning)</option>
+            <option value="bankura">Bankura (Bishnupur / Kotulpur)</option>
+          </select>
+        </div>
+
+        <div class="control-group-swap" id="logisticsSwapGroup" style="display: flex; align-items: flex-end; padding-bottom: 4px;">
+          <button type="button" class="btn-swap-route" id="btnSwapLogistics" onclick="swapLogisticsRoute()" title="Interchange Pickup &amp; Drop Locations">
+            <i data-lucide="arrow-left-right"></i>
+            <span id="swapBtnText">⇄ Interchange</span>
+          </button>
+        </div>
+
+        <div class="control-group" id="logisticsDestGroup" style="flex: 1;">
+          <label id="logisticsDestLabel"><i data-lucide="navigation"></i> Destination Hub:</label>
+          <select id="logisticsDestSelect" class="control-select" onchange="handleLogisticsDestChange(this.value)">
+            <option value="kolkata_central">Kolkata Central Hub (Sector V / Salt Lake)</option>
+            <option value="kolkata_south">Kolkata South Hub (Jadavpur / Behala)</option>
+            <option value="howrah_terminal">Howrah Freight Terminal (Nabanna)</option>
+            <option value="newtown_smart">New Town Smart Logistics Hub</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Mode Tabs: Direct Farm Route vs Multi-Farm Batch (TSP) -->
+      <div class="logistics-tabs">
+        <button id="logisticsTabDirect" class="logistics-tab-btn active" onclick="switchLogisticsTab('direct')">
+          <i data-lucide="route"></i> <span id="tabDirectText">Direct Farm Corridor</span>
+        </button>
+        <button id="logisticsTabBatch" class="logistics-tab-btn" onclick="switchLogisticsTab('batch')">
+          <i data-lucide="layers"></i> <span id="tabBatchText">Multi-Stop Cluster Pickup (TSP)</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Direct Route Visualizer -->
+      <div id="logisticsDirectView" class="logistics-body">
+        <div class="route-status-alert" id="logisticsAlertBox">
+          <i data-lucide="check-circle-2"></i>
+          <span id="logisticsAlertMsg"><strong>Autonomous Reroute Applied:</strong> NH-19 rural detour optimized. Lowland waterlogging bypassed via SH-13. Transit delay avoided: <strong>1.8 hours</strong>.</span>
+        </div>
+
+        <div class="route-stepper">
+          <div class="step-point completed">
+            <div class="step-icon">1</div>
+            <strong id="step1Title">Farm Gate (Singur)</strong>
+            <span id="step1Time">Loaded: Today 06:15 AM</span>
+          </div>
+          <div class="step-bar active"></div>
+          <div class="step-point in-transit">
+            <div class="step-icon pulse">2</div>
+            <strong id="step2Title">Green Transit (EV Truck)</strong>
+            <span id="step2Speed">En Route • 42 km/h</span>
+          </div>
+          <div class="step-bar"></div>
+          <div class="step-point future">
+            <div class="step-icon">3</div>
+            <strong id="step3Title">Consumer Kitchen / Hub</strong>
+            <span id="step3Time">Estimated: Today 08:30 AM</span>
+          </div>
+        </div>
+
+        <div class="efficiency-stats-grid">
+          <div class="eff-stat highlight">
+            <span id="statLabelRouteDistTime">Route Distance &amp; Time</span>
+            <strong id="routeDistanceTimeStat">48.2 km • 1.4 hrs</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="statLabelIntermediaries">Intermediaries Skipped</span>
+            <strong id="mandiSkippedStat">3 Mandi Tiers</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="statLabelCarbon">Carbon Emission Saved</span>
+            <strong id="carbonSavedStat">-4.8 kg CO₂ (Green EV)</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="statLabelFreight">Freight Savings</span>
+            <strong id="freightSavingsStat">₹9.50 / kg</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Multi-Stop Batch Pickup (TSP) View -->
+      <div id="logisticsBatchView" class="logistics-body" style="display: none;">
+        <div class="route-status-alert">
+          <i data-lucide="cpu"></i>
+          <span id="tspAlertText"><strong>Heuristic TSP Engine:</strong> Optimizing multi-farmer pickup sequence to maximize vehicle payload while minimizing deadhead mileage.</span>
+        </div>
+
+        <div class="tsp-box">
+          <div class="tsp-header-row">
+            <h4 id="tspSectionTitle"><i data-lucide="truck"></i> Sequenced Farmgate Pickups</h4>
+            <span class="tsp-badge" id="tspDistrictBadge">Hooghly Cluster</span>
+          </div>
+          <div id="tspStopList" class="tsp-stop-list">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <div class="efficiency-stats-grid">
+          <div class="eff-stat highlight">
+            <span id="tspLabelCargo">Aggregated Cargo</span>
+            <strong id="tspCargoStat">380 kg</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="tspLabelUtilization">Vehicle Utilization</span>
+            <strong id="tspUtilizationStat">76% (Tata Ace EV)</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="tspLabelDistance">Batch Circuit Distance</span>
+            <strong id="tspDistanceStat">34.5 km</strong>
+          </div>
+          <div class="eff-stat">
+            <span id="tspLabelCost">Est. Aggregation Cost</span>
+            <strong id="tspCostStat">₹420 total</strong>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 20px;">
+        <button class="btn-sheet full-width" id="btnCloseLogistics" onclick="closeLogisticsModal()">Close Logistics Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 9. ORDERS & TRACKING MODAL ================= -->
+  <div id="ordersModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'ordersModal')">
+    <div class="modal-dialog orders-dialog">
+      <div class="modal-close" onclick="closeOrdersModal()">✕</div>
+      <div class="orders-dialog-header">
+        <h2 id="ordersModalHeading">Your Farm Direct Orders &amp; Escrow Shipments</h2>
+        <p id="ordersModalSub">Real-time delivery status, waybills, and farmer contact relays</p>
+      </div>
+      <div id="ordersModalList" class="orders-list-container">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 9B. FREQUENTLY BOUGHT BASKET MODAL ================= -->
+  <div id="freqBundleModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'freqBundleModal')">
+    <div class="modal-dialog freq-bundle-dialog">
+      <div class="modal-close" onclick="closeFreqBundleModal()">✕</div>
+      <div class="freq-bundle-header">
+        <div class="freq-bundle-badge">
+          <i data-lucide="repeat"></i>
+          <span id="freqModalBadgeText">Direct Farm Reorder Basket</span>
+        </div>
+        <h2 id="freqBundleModalTitle">Frequently Bought Staple Crops</h2>
+        <p id="freqBundleModalSubtitle">Your recurring household staples based on your order history &amp; seasonal demand</p>
+      </div>
+
+      <div class="freq-bundle-body">
+        <div class="freq-bundle-items-header">
+          <span id="labelBundleItemsHeading">Curated Reorder Items</span>
+          <span class="freq-items-count-tag" id="freqBundleCountTag">0 Items</span>
+        </div>
+        <div id="freqBundleItemsList" class="freq-bundle-items-list">
+          <!-- Injected dynamically via JS -->
+        </div>
+
+        <div class="freq-bundle-summary-card">
+          <div class="freq-summary-row">
+            <span id="labelFreqProduceSubtotal">Produce Subtotal:</span>
+            <strong id="freqBundleSubtotal">₹0.00</strong>
+          </div>
+          <div class="freq-summary-row">
+            <span id="labelFreqMandiRetail">Mandi City Retail Value:</span>
+            <span id="freqBundleRetailTotal" style="text-decoration: line-through; color: #64748b;">₹0.00</span>
+          </div>
+          <div class="freq-summary-row savings-row">
+            <span id="labelFreqDirectSavings">Your Direct Savings:</span>
+            <strong id="freqBundleTotalSavings" style="color: #15803d;">₹0.00 (35% OFF)</strong>
+          </div>
+          <div class="freq-summary-row total-row">
+            <span id="labelFreqTotalPayable">Total Basket Payable:</span>
+            <strong id="freqBundleTotalPayable" style="color: #15803d; font-size: 20px;">₹0.00</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="freq-bundle-footer">
+        <button class="btn-sheet" onclick="closeFreqBundleModal()" id="btnCancelFreqModal">Keep Browsing</button>
+        <button class="btn-checkout" id="btnAddAllFreqBundleToCart" onclick="addAllFreqItemsToCart()">
+          <i data-lucide="shopping-cart"></i> <span id="btnAddAllFreqText">Add All Items to Cart &amp; Reorder</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 9C. DIRECT 1:1 FARMER-CONSUMER CHAT MODAL ================= -->
+  <div id="farmerChatModal" class="modal-backdrop" onclick="handleBackdropClick(event, 'farmerChatModal')">
+    <div class="modal-dialog farmer-chat-dialog">
+      <div class="modal-close" onclick="closeFarmerChat()">✕</div>
+      
+      <!-- Farmer Chat Header -->
+      <div class="farmer-chat-header">
+        <div class="farmer-chat-header-left">
+          <div class="farmer-chat-avatar-wrap">
+            <div id="farmerChatAvatarBadge" class="farmer-chat-avatar-badge">
+              <i data-lucide="tractor"></i>
+            </div>
+            <span class="farmer-chat-online-dot" title="Online at Farmgate"></span>
+          </div>
+          <div class="farmer-chat-title-box">
+            <div class="farmer-chat-name-row">
+              <h3 id="farmerChatName">Farmer Name</h3>
+              <span class="farmer-verified-check" title="Verified Bengal Producer"><i data-lucide="check-circle-2"></i></span>
+            </div>
+            <p id="farmerChatFpoSubtitle" class="farmer-chat-fpo-sub">Singur Agro FPO • Hooghly Central</p>
+          </div>
+        </div>
+        <div class="farmer-chat-header-actions">
+          <a id="farmerChatCallBtn" href="tel:6289069619" class="farmer-chat-call-btn" title="Call Farmer Directly">
+            <i data-lucide="phone"></i> <span>Call Gate</span>
+          </a>
+          <button type="button" class="farmer-chat-clear-btn" onclick="clearFarmerChatHistory()" title="Clear Chat">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Farmer Live Status Sub-banner -->
+      <div class="farmer-chat-sub-banner" id="farmerChatSubBanner">
+        <div class="farmer-banner-item">
+          <i data-lucide="map-pin"></i> <span id="farmerChatLocation">Singur, Hooghly (32 km)</span>
+        </div>
+        <div class="farmer-banner-item">
+          <i data-lucide="clock"></i> <span id="farmerChatHarvestTime">Next Harvest: Tomorrow 5:30 AM</span>
+        </div>
+        <div class="farmer-banner-item">
+          <i data-lucide="shield-check"></i> <span id="farmerChatEscrowTag">Escrow Protected</span>
+        </div>
+      </div>
+
+      <!-- Farmer Chat Messages Container -->
+      <div id="farmerChatMessages" class="farmer-chat-messages">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Typing Indicator -->
+      <div id="farmerTypingIndicator" class="farmer-typing-indicator" style="display: none;">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span id="farmerTypingLabel" style="margin-left: 6px; font-size: 11px; color: #047857;">Farmer is typing...</span>
+      </div>
+
+      <!-- Quick Inquiry Chips Container -->
+      <div class="farmer-chat-chips-wrap">
+        <div class="farmer-chips-heading" id="farmerChipsHeading">Quick Questions for this Farmer:</div>
+        <div id="farmerChatQuickChips" class="farmer-chat-chips">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form class="farmer-chat-input-form" onsubmit="handleFarmerChatSubmit(event)">
+        <div class="farmer-input-row">
+          <input type="text" id="farmerChatInput" placeholder="Ask about harvest quality, bulk supply, dispatch..." autocomplete="off" />
+          <button type="submit" class="farmer-chat-send-btn" title="Send Message">
+            <i data-lucide="send"></i>
+          </button>
+        </div>
+        <div class="farmer-chat-footer-bar">
+          <span id="farmerChatHelplineNote"><i data-lucide="headset" style="width:12px;height:12px;display:inline-block;vertical-align:-1px;"></i> Zero-Broker Relay Helpline:</span>
+          <a href="tel:6289069619" class="farmer-helpline-link">6289069619</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ================= 9D. AUTHENTICATION PLATE MODAL ================= -->
+  <div id="tazaAuthModal" class="taza-auth-backdrop open" onclick="handleAuthBackdrop(event)">
+    <div class="taza-auth-dialog">
+      <button type="button" class="taza-close-btn" onclick="closeAuthModal()" aria-label="Close">✕</button>
+
+      <!-- Top Branding -->
+      <div class="taza-auth-header">
+        <div class="taza-brand-pill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 20h10M10 20c0-4 1.5-6.5 4-8 0 0-4.5-.5-6 3.5M14 8c-2 0-4 1-5 3.5"/>
+          </svg>
+          <span>TAZA AgriDirect</span>
+        </div>
+        <h2 id="authHeading">Welcome to TAZA</h2>
+        <p id="authSubheading">Select your role and account action to proceed</p>
+      </div>
+
+      <!-- Step 1: Role Selection (Consumer vs Farmer) -->
+      <div class="role-selector-row">
+        <button type="button" class="role-pill-btn active" id="roleConsumerBtn" onclick="selectRole('consumer')">
+          🛒 Consumer / Buyer
+        </button>
+        <button type="button" class="role-pill-btn" id="roleFarmerBtn" onclick="selectRole('farmer')">
+          🌾 Farmer / Producer
+        </button>
+      </div>
+
+      <!-- Step 1b: Mode Toggle (Sign In vs Sign Up) -->
+      <div class="mode-toggle-tabs">
+        <button type="button" class="mode-tab active" id="tabLogin" onclick="selectMode('login')">
+          Sign In
+        </button>
+        <button type="button" class="mode-tab" id="tabSignup" onclick="selectMode('signup')">
+          Create Account (Sign Up)
+        </button>
+      </div>
+
+      <!-- Demo Profiles Quick Fill -->
+      <div class="demo-chip-bar">
+        <span>Demo Fill:</span>
+        <button type="button" class="demo-chip" onclick="fillDemo('consumer')">👤 Demo Consumer</button>
+        <button type="button" class="demo-chip" onclick="fillDemo('farmer')">🚜 Demo Farmer</button>
+      </div>
+
+      <!-- Main Credentials Form -->
+      <form id="authCredentialForm" onsubmit="handleRequestOtp(event)">
+        <!-- Name Field (Visible on Sign Up) -->
+        <div class="auth-field" id="fieldFullName" style="display: none;">
+          <label for="inputName">Full Name</label>
+          <input type="text" id="inputName" placeholder="e.g. Sourav Banerjee" />
+        </div>
+
+        <!-- Phone Number Field -->
+        <div class="auth-field">
+          <label for="inputPhone">Mobile Number (10 Digits)</label>
+          <div class="phone-input-wrap">
+            <span class="country-prefix">+91</span>
+            <input type="tel" id="inputPhone" maxlength="10" placeholder="9830112233" required />
+          </div>
+        </div>
+
+        <!-- Email Address Field -->
+        <div class="auth-field">
+          <label for="inputEmail">Email Address</label>
+          <input type="email" id="inputEmail" placeholder="e.g. user@taza.in" required />
+        </div>
+
+        <!-- Extra Field for Farmers on Sign Up -->
+        <div class="auth-field" id="fieldFarmerDistrict" style="display: none;">
+          <label for="inputDistrict">Farm District &amp; FPO (Bengal Corridor)</label>
+          <select id="inputDistrict">
+            <option value="Hooghly (Singur Agro FPO)">Hooghly (Singur Agro FPO)</option>
+            <option value="Nadia (Ranaghat Green Co-op)">Nadia (Ranaghat Green Co-op)</option>
+            <option value="Purba Bardhaman (Memari FPO)">Purba Bardhaman (Memari FPO)</option>
+            <option value="Malda (Mango Growers Guild)">Malda (Mango Growers Guild)</option>
+          </select>
+        </div>
+
+        <!-- Terms and Conditions Agreement for Farmers on Sign Up -->
+        <div class="auth-field" id="fieldFarmerTerms" style="display: none;">
+          <div class="farmer-terms-container">
+            <label class="terms-checkbox-label">
+              <input type="checkbox" id="farmerTermsCheckbox" />
+              <span>I agree to the <a href="javascript:void(0)" onclick="openFarmerAgreementModal()" class="terms-link">Terms &amp; Conditions / কৃষক ফসল চুক্তি (Farmer Produce Agreement)</a></span>
+            </label>
+            <p class="terms-help-text">
+              By checking this, you agree to TAZA's guaranteed pricing, warehouse grade testing, 30-day direct electronic payment, zero claim on farm land, and fair dispute settlement. An official trilingual copy containing your <strong>Farmer Name and Contact Number</strong> will be dispatched to your registered email upon sign-up.
+            </p>
+            <button type="button" class="view-agreement-btn" onclick="openFarmerAgreementModal()">
+              <i data-lucide="file-text" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:4px;"></i> View Trilingual Agreement Document
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="auth-action-btn" id="btnSubmitForm">
+          Proceed with Verification OTP
+        </button>
+
+        <div class="auth-or-divider"><span>OR</span></div>
+        <button type="button" class="auth-skip-btn" onclick="skipLoginAndBrowse()">
+          🌐 Skip Sign In &amp; Browse Marketplace as Guest
+        </button>
+      </form>
+
+      <!-- Step 2: Demo OTP Verification Screen (Hidden initially) -->
+      <div id="authOtpScreen" class="auth-screen-step" style="display: none;">
+        <div class="otp-alert-box">
+          <span>📨 OTP Dispatched to <strong id="otpTargetMobile"></strong></span>
+        </div>
+
+        <!-- Live Simulated SMS Notification Banner -->
+        <div class="simulated-sms-inbox" id="simulatedSmsInbox">
+          <div class="sms-inbox-header">
+            <span>📱 Live SMS Delivery Simulation</span>
+            <span class="sms-badge">Instant</span>
+          </div>
+          <div class="sms-inbox-message">
+            Your TAZA verification code is: <strong id="liveOtpCodeBadge" class="sms-code-pill">123456</strong>
+          </div>
+          <button type="button" class="sms-fill-btn" onclick="autoFillAndVerifyOtp()">
+            ⚡ 1-Click Auto-Fill &amp; Enter Portal
+          </button>
+        </div>
+
+        <div class="auth-field">
+          <label for="otpCodeInput">Enter 6-Digit Verification OTP</label>
+          <input type="text" id="otpCodeInput" maxlength="6" class="otp-digit-input" placeholder="123456" />
+          <small class="otp-demo-hint">Use testing code: <strong>123456</strong> or click Auto-Fill above</small>
+        </div>
+
+        <button type="button" class="auth-action-btn" onclick="verifyDemoOtp()">
+          Verify &amp; Enter Portal
+        </button>
+
+        <button type="button" class="auth-skip-btn" style="margin-top: 8px;" onclick="skipLoginAndBrowse()">
+          🌐 Skip OTP &amp; Continue as Guest
+        </button>
+
+        <button type="button" class="auth-link-btn" onclick="goBackToForm()">
+          ← Edit Phone Number or Email
+        </button>
+      </div>
+
+      <!-- Step 3: Success Confirmation Screen -->
+      <div id="authSuccessScreen" class="auth-screen-step" style="display: none;">
+        <div class="auth-success-box">
+          <div class="success-icon">✓</div>
+          <h3 id="successTitle">Authentication Successful!</h3>
+          <p id="successProfileMeta"></p>
+          <div id="authAgreementNotice" class="auth-agreement-badge" style="display: none;">
+            <i data-lucide="check-circle-2" id="authAgreementIcon" style="width:16px;height:16px;color:#16a34a;margin-right:6px;flex-shrink:0;"></i>
+            <div style="flex: 1;">
+              <span id="authAgreementText">Official Terms &amp; Conditions copy dispatched to your email with your Name &amp; Contact Number.</span>
+              <div class="auth-agreement-actions" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-download-agreement" onclick="downloadFarmerAgreement()" style="background:#ffffff; border:1px solid #86efac; border-radius:6px; padding:4px 10px; font-size:11.5px; font-weight:700; color:#15803d; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                  <i data-lucide="download" style="width:13px;height:13px;"></i> Download Agreement (.HTML)
+                </button>
+                <button type="button" class="btn-preview-agreement" onclick="openFarmerAgreementModal()" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:4px 10px; font-size:11.5px; font-weight:600; color:#475569; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                  <i data-lucide="printer" style="width:13px;height:13px;"></i> View &amp; Print
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="auth-action-btn" onclick="finishLogin()">
+            Continue to Dashboard
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 9E. FARMER AGREEMENT DOCUMENT MODAL ================= -->
+  <div id="farmerAgreementModal" class="taza-agreement-backdrop" style="display: none;" onclick="handleAgreementBackdrop(event)">
+    <div class="taza-agreement-dialog">
+      <div class="agreement-dialog-bar">
+        <div class="agreement-dialog-title">
+          <i data-lucide="file-check" style="width:20px;height:20px;color:#15803d;margin-right:8px;vertical-align:middle;"></i>
+          <span>TAZA Farmer Produce Agreement &bull; কৃষক ফসল চুক্তি &bull; किसान उपज समझौता</span>
+        </div>
+        <div class="agreement-dialog-actions">
+          <button type="button" class="btn-agreement-print" onclick="printFarmerAgreement()">
+            <i data-lucide="printer" style="width:14px;height:14px;margin-right:4px;"></i> Print / Save PDF
+          </button>
+          <button type="button" class="taza-close-btn" onclick="closeFarmerAgreementModal()" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="agreement-dialog-body" id="farmerAgreementBody">
+        <!-- Content dynamically injected with Farmer Name and Contact Number -->
+      </div>
+      <div class="agreement-dialog-footer">
+        <div class="agreement-footer-actions">
+          <button type="button" class="btn-agreement-agree" onclick="acceptFarmerAgreementFromModal()">
+            <i data-lucide="check" style="width:16px;height:16px;margin-right:6px;"></i> I Accept &amp; Agree to Terms
+          </button>
+          <button type="button" class="btn-agreement-close" onclick="closeFarmerAgreementModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 9F. FARMER PROFILE & LEGAL DOCUMENTS VAULT MODAL ================= -->
+  <div id="farmerProfileModal" class="taza-profile-backdrop" style="display: none;" onclick="handleFarmerProfileBackdrop(event)">
+    <div class="taza-profile-dialog">
+      <!-- Profile Modal Header -->
+      <div class="profile-dialog-header">
+        <div class="profile-header-user">
+          <div class="profile-avatar">
+            <i data-lucide="user-check"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 id="vaultFarmerName" style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Ananda Mondal</h3>
+              <span class="vault-badge-verified">✓ Verified Producer</span>
+            </div>
+            <p id="vaultFarmerSubtitle" style="margin: 3px 0 0; font-size: 12.5px; color: #64748b;">
+              Contact: <span id="vaultFarmerPhone">+91 9830112233</span> &bull; Farm Gate: <span id="vaultFarmerDistrict">Hooghly Central Zone</span>
+            </p>
+          </div>
+        </div>
+        <button type="button" class="taza-close-btn" onclick="closeFarmerProfileModal()" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="profile-nav-tabs">
+        <button type="button" class="profile-tab-btn active" id="tabBtnDocuments" onclick="switchProfileTab('documents')">
+          <i data-lucide="folder-check"></i> Legal &amp; Produce Documents (আমার নথিপত্র)
+        </button>
+        <button type="button" class="profile-tab-btn" id="tabBtnDetails" onclick="switchProfileTab('details')">
+          <i data-lucide="badge-percent"></i> Farm &amp; Account Details (বিবরণ)
+        </button>
+      </div>
+
+      <!-- Profile Modal Body -->
+      <div class="profile-dialog-body">
+        <!-- Tab 1: Documents Section -->
+        <div id="profileTabDocuments" class="profile-tab-pane active">
+          <div class="vault-notice-banner">
+            <i data-lucide="shield-check" style="color: #16a34a; width: 22px; height: 22px; flex-shrink: 0;"></i>
+            <div>
+              <div style="font-weight: 700; font-size: 13px; color: #166534;">Official Agricultural Document Repository &bull; সরকারি স্বীকৃত নথি ভাণ্ডার</div>
+              <div style="font-size: 12px; color: #15803d; margin-top: 2px;">
+                All contracts, warehouse passes, and price guarantees are digitally signed, legally binding under Indian Contract Act, and safeguarded with 256-bit encryption.
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Documents Container -->
+          <div id="farmerDocsListContainer" class="vault-docs-list">
+            <!-- Populated dynamically via loadFarmerDocuments() -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Profile Details Section -->
+        <div id="profileTabDetails" class="profile-tab-pane" style="display: none;">
+          <div class="farmer-details-grid">
+            <div class="detail-card">
+              <span class="detail-label">Full Name / কৃষকের নাম</span>
+              <span class="detail-val" id="detailFarmerName">Ananda Mondal</span>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Mobile Number / যোগাযোগ</span>
+              <span class="detail-val" id="detailFarmerPhone">+91 9830112233</span>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Email ID / ইমেল</span>
+              <span class="detail-val" id="detailFarmerEmail">ananda.mondal@farmer.taza.in</span>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Operational Zone / জেলা কেন্দ্র</span>
+              <span class="detail-val" id="detailFarmerZone">Hooghly Central Agricultural Corridor</span>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Associated FPO / সমবায় সমিতি</span>
+              <span class="detail-val">Singur Agro Farmers Producer Organization</span>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Payment Settlement Mode / পেমেন্ট মোড</span>
+              <span class="detail-val" style="color: #16a34a; font-weight: 700;">Direct Bank / UPI Verified (Max 30 Days)</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; padding: 14px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 8px; font-size: 13px; color: #334155;">Produce Agreement Terms &amp; Conditions Status:</h4>
+            <div style="font-size: 12.5px; color: #475569; display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
+              <span><strong>Accepted &amp; Digitally Signed</strong> during registration. Full agreement accessible in the Documents tab.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Modal Footer -->
+      <div class="profile-dialog-footer">
+        <span style="font-size: 12px; color: #64748b;">TAZA Agro Digital Network &bull; Secure Farmer Vault</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-profile-close" onclick="closeFarmerProfileModal(); switchRole('consumer');" style="background: #166534; color: #fff; border: none;">
+            <i data-lucide="shopping-bag" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Switch to Buyer Marketplace
+          </button>
+          <button type="button" class="btn-profile-close" onclick="closeFarmerProfileModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 9G. ALL RISKS INSURANCE POLICY & CLAIM VIEWER MODAL ================= -->
+  <div id="farmerInsuranceModal" class="taza-agreement-backdrop" style="display: none;" onclick="handleInsuranceBackdrop(event)">
+    <div class="taza-agreement-dialog" style="max-width: 920px;">
+      <div class="agreement-dialog-bar" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);">
+        <div class="agreement-dialog-title">
+          <i data-lucide="shield-check" style="width:22px;height:22px;color:#15803d;margin-right:8px;vertical-align:middle;"></i>
+          <span>ALL RISKS INSURANCE POLICY (Warehouse Storage Cover • গুদামজাত শস্য সর্বঝুঁকি বীমা)</span>
+        </div>
+        <div class="agreement-dialog-actions">
+          <button type="button" class="btn-agreement-print" onclick="printFarmerInsurancePolicy()">
+            <i data-lucide="printer" style="width:14px;height:14px;margin-right:4px;"></i> Print / Save PDF
+          </button>
+          <button type="button" class="btn-agreement-print" onclick="downloadFarmerInsurancePolicy()" style="color: #15803d; border-color: #86efac;">
+            <i data-lucide="download" style="width:14px;height:14px;margin-right:4px;"></i> Download (.HTML)
+          </button>
+          <button type="button" class="taza-close-btn" onclick="closeFarmerInsuranceModal()" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="agreement-dialog-body" id="farmerInsuranceBody">
+        <!-- Dynamically rendered 22-clause policy and claim details -->
+      </div>
+      <div class="agreement-dialog-footer" style="justify-content: space-between;">
+        <span style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="database" style="width: 13px; height: 13px; color: #16a34a;"></i>
+          <span>Live Claim Sync via MongoDB <code>insurancerefunds</code> &bull; Statutory 22-Clause Cover</span>
+        </span>
+        <div class="agreement-footer-actions">
+          <button type="button" class="btn-agreement-agree" onclick="closeFarmerInsuranceModal()">
+            Done / Close Policy Viewer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 10. FLOATING STICKY CART BAR ================= -->
+  <div id="floatingCartBar" class="floating-cart-bar" onclick="toggleCartDrawer()">
+    <div class="floating-cart-info">
+      <div class="floating-cart-badge-icon">
+        <i data-lucide="shopping-bag"></i>
+        <span id="floatingCartCount">0</span>
+      </div>
+      <div class="floating-cart-text">
+        <div class="floating-cart-total" id="floatingCartTotal">₹0.00</div>
+        <div class="floating-cart-savings" id="floatingCartSavings">Save ₹0.00 vs Mandi</div>
+      </div>
+    </div>
+    <button class="btn-floating-view-cart">
+      <span id="btnFloatingViewCartText">View Cart</span>
+      <i data-lucide="arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- ================= 11. E-COMMERCE TOAST NOTIFICATION ================= -->
+  <div id="cartToast" class="cart-toast">
+    <div class="toast-icon-wrap"><i data-lucide="check"></i></div>
+    <span id="cartToastText">Added to cart</span>
+  </div>
+
+  <!-- ================= 12. TAZATALKS AI DUAL-ROLE CHATBOT WIDGET ================= -->
+  <div id="tazaTalksFloatingTrigger" class="tazatalks-floating-btn" onclick="toggleTazaTalksChat()" title="Talk with TazaTalks AI Assistant">
+    <div class="tazatalks-pulse-ring"></div>
+    <div class="tazatalks-btn-inner">
+      <i data-lucide="bot" class="tazatalks-main-icon"></i>
+      <span class="tazatalks-btn-label">TazaTalks AI</span>
+    </div>
+    <span class="tazatalks-online-dot" title="Online"></span>
+  </div>
+
+  <div id="tazaTalksChatWindow" class="tazatalks-chat-window">
+    <div class="tazatalks-header">
+      <div class="tazatalks-header-left">
+        <div class="tazatalks-avatar">
+          <i data-lucide="bot"></i>
+        </div>
+        <div class="tazatalks-title-box">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <h4 id="tazaTalksHeaderTitle">TazaTalks AI</h4>
+            <span class="tazatalks-badge-online">Live 24/7</span>
+          </div>
+          <p id="tazaTalksSubhead">Agri-Direct Dual AI Assistant</p>
+        </div>
+      </div>
+      <div class="tazatalks-header-right">
+        <a href="tel:6289069619" class="tazatalks-header-call-btn" title="Direct Phone Support (6289069619)">
+          <i data-lucide="phone"></i>
+        </a>
+        <button type="button" class="tazatalks-icon-btn" onclick="clearTazaTalksChat()" title="Clear Conversation">
+          <i data-lucide="trash-2"></i>
+        </button>
+        <button type="button" class="tazatalks-icon-btn" onclick="toggleTazaTalksChat()" title="Close Chat">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Mode Indicator Loaded from User Selection (No manual toggle inside chatbot) -->
+    <div id="tazaTalksActiveModeBanner" class="tazatalks-active-mode-banner">
+      <i id="tazaTalksActiveModeIcon" data-lucide="shopping-basket"></i>
+      <span id="tazaTalksActiveModeText">Consumer Assistant Mode (Loaded from profile)</span>
+    </div>
+
+    <!-- Chat Messages Stream -->
+    <div id="tazaTalksMessages" class="tazatalks-messages-body">
+      <!-- Injected via JavaScript -->
+    </div>
+
+    <!-- Quick Questions Chips Container -->
+    <div class="tazatalks-chips-section">
+      <div class="tazatalks-chips-title" id="tazaTalksChipsHeader">Frequently Asked Questions:</div>
+      <div id="tazaTalksQuickChips" class="tazatalks-quick-chips">
+        <!-- Injected via JavaScript based on active role -->
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form class="tazatalks-input-form" onsubmit="handleTazaTalksSubmit(event)">
+      <div class="tazatalks-input-wrap">
+        <input type="text" id="tazaTalksInput" placeholder="Ask TazaTalks anything or choose an FAQ above..." autocomplete="off" />
+        <button type="submit" class="tazatalks-send-btn" title="Send message">
+          <i data-lucide="send"></i>
+        </button>
+      </div>
+      <div class="tazatalks-footer-call-bar">
+        <span id="tazaTalksFooterHelplineLabel">Customer Care:</span>
+        <a href="tel:6289069619" class="tazatalks-inline-call-link">
+          <i data-lucide="phone-call" style="width:12px;height:12px;display:inline-block;vertical-align:-1px;"></i> 6289069619
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================= 13. PRICING STRATEGY INFO MODAL ================= -->
+  <div id="modalPricingStrategyInfo" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); overflow-y:auto; padding:20px 16px;">
+    <div style="max-width:600px; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
+      <!-- Modal Header -->
+      <div style="background:linear-gradient(135deg, #065f46 0%, #047857 100%); padding:18px 22px; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <h3 style="color:#fff; margin:0; font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="book-open" style="width:18px; height:18px;"></i>
+            <span id="modalPricingGuideHeading">Pricing Guide &amp; 20% Surge Profit Calculator</span>
+          </h3>
+          <p style="color:#a7f3d0; margin:4px 0 0; font-size:0.78rem;" id="modalPricingGuideSubhead">Understand how Dynamic &amp; Fixed pricing works for your farm</p>
+        </div>
+        <button type="button" onclick="closePricingStrategyInfoModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:1rem; line-height:1;">✕</button>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div style="display:flex; border-bottom:2px solid #e2e8f0;">
+        <button type="button" id="modalTabDynamic" onclick="switchPricingInfoTab('DYNAMIC')" style="flex:1; padding:12px; border:none; background:#f0fdf4; font-weight:700; font-size:0.85rem; color:#15803d; border-bottom:3px solid #16a34a; cursor:pointer; transition:all 0.2s;">
+          📈 Dynamic Pricing
+        </button>
+        <button type="button" id="modalTabFixed" onclick="switchPricingInfoTab('FIXED')" style="flex:1; padding:12px; border:none; background:#f8fafc; font-weight:700; font-size:0.85rem; color:#64748b; border-bottom:3px solid transparent; cursor:pointer; transition:all 0.2s;">
+          🔒 Fixed Pricing
+        </button>
+      </div>
+
+      <!-- Dynamic Tab Content -->
+      <div id="modalContentDynamic" style="padding:20px 22px;">
+        <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:14px 16px; margin-bottom:14px;">
+          <h4 style="margin:0 0 8px; font-size:0.9rem; color:#065f46; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="trending-up" style="width:15px; height:15px;"></i> How Dynamic Daily Market Peg Works
+          </h4>
+          <p style="margin:0; font-size:0.81rem; color:#374151; line-height:1.6;">
+            TAZA pegs your crop price to the <strong>daily Mandi (wholesale market) benchmark</strong>. Each day, a market swing factor (±5.5%) is computed from today's date and your crop name. Your final listing price moves with the market — protecting you from stale pricing while keeping buyers confident in fair rates.
+          </p>
+        </div>
+
+        <!-- PROS -->
+        <div style="margin-bottom:12px;">
+          <div style="font-weight:700; font-size:0.82rem; color:#15803d; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+            <i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> Advantages for Farmers
+          </div>
+          <ul style="margin:0; padding-left:18px; font-size:0.80rem; color:#374151; line-height:1.8;">
+            <li><strong>20% Profit Share Bonus</strong> — when wholesale Mandi prices spike, you automatically earn 20% of that surge directly on top of your base price.</li>
+            <li><strong>MSP Floor Protection</strong> — set a minimum price floor so you <em>never</em> sell below your breakeven cost, even when market dips.</li>
+            <li>Price reflects <strong>real supply &amp; demand</strong>, building trust with urban consumers who compare Mandi rates.</li>
+          </ul>
+        </div>
+
+        <!-- CONS -->
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700; font-size:0.82rem; color:#b45309; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+            <i data-lucide="alert-triangle" style="width:14px; height:14px; color:#b45309;"></i> Considerations
+          </div>
+          <ul style="margin:0; padding-left:18px; font-size:0.80rem; color:#374151; line-height:1.8;">
+            <li>Price is <strong>variable day-to-day</strong> — consumer sees a slightly different rate each morning.</li>
+            <li>Requires trust that TAZA's benchmark data is accurate (verified against public Mandi records).</li>
+          </ul>
+        </div>
+
+        <!-- Embedded Scenario Calculator in modal -->
+        <div style="background:linear-gradient(135deg, #f0fdf4, #ecfdf5); border:1.5px solid #86efac; border-radius:10px; padding:14px 16px;">
+          <div style="font-weight:700; font-size:0.83rem; color:#065f46; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="calculator" style="width:14px; height:14px;"></i>
+            🚀 Live 20% Surge Profit Calculator
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+            <button type="button" id="modalBtnNormal" onclick="selectPricingScenario('NORMAL', event)" style="flex:1; min-width:90px; padding:7px 10px; border-radius:20px; border:1.5px solid #94a3b8; background:#f8fafc; font-size:0.77rem; font-weight:700; color:#475569; cursor:pointer; transition:all 0.2s;">🌤️ Normal</button>
+            <button type="button" id="modalBtnSurge10" onclick="selectPricingScenario('HIGH_10', event)" style="flex:1; min-width:90px; padding:7px 10px; border-radius:20px; border:1.5px solid #16a34a; background:#f0fdf4; font-size:0.77rem; font-weight:700; color:#15803d; cursor:pointer; transition:all 0.2s;">🚀 High (+₹10/kg)</button>
+            <button type="button" id="modalBtnSurge15" onclick="selectPricingScenario('HIGH_15', event)" style="flex:1; min-width:90px; padding:7px 10px; border-radius:20px; border:1.5px solid #d97706; background:#fffbeb; font-size:0.77rem; font-weight:700; color:#b45309; cursor:pointer; transition:all 0.2s;">🔥 Festival (+₹15/kg)</button>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="background:#fff; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center;">
+              <div style="font-size:0.70rem; color:#64748b; font-weight:600;">Mandi Benchmark</div>
+              <div style="font-size:1rem; font-weight:800; color:#1e293b; margin-top:2px;" id="modalValMandiRate">₹35.00/kg</div>
+              <small style="font-size:0.68rem; color:#16a34a; font-weight:700;" id="modalValMarketSpike">+₹10.00 spike</small>
+            </div>
+            <div style="background:#ecfdf5; border:1.5px solid #16a34a; border-radius:8px; padding:10px; text-align:center;">
+              <div style="font-size:0.70rem; color:#065f46; font-weight:700;">Your 20% Bonus</div>
+              <div style="font-size:1rem; font-weight:800; color:#15803d; margin-top:2px;" id="modalValFarmerBonus">+₹2.00/kg</div>
+              <small style="font-size:0.68rem; color:#047857; font-weight:600;" id="modalValBonusBadge">🎉 Surge Bonus</small>
+            </div>
+            <div style="background:#fff; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center;">
+              <div style="font-size:0.70rem; color:#64748b; font-weight:600;">Your Payout/kg</div>
+              <div style="font-size:1rem; font-weight:800; color:#0f172a; margin-top:2px;" id="modalValFinalPayout">₹27.00/kg</div>
+              <small style="font-size:0.68rem; color:#15803d; font-weight:700;" id="modalValGainPct">+8.0% gain</small>
+            </div>
+            <div style="background:#fefce8; border:1px solid #fef08a; border-radius:8px; padding:10px; text-align:center;">
+              <div style="font-size:0.70rem; color:#854d0e; font-weight:600;">Extra Batch Cash</div>
+              <div style="font-size:1rem; font-weight:800; color:#a16207; margin-top:2px;" id="modalValExtraProfit">+₹1,000.00</div>
+              <small style="font-size:0.68rem; color:#ca8a04; font-weight:600;" id="modalValBatchQtyRef">for 500 kg</small>
+            </div>
+          </div>
+          <div id="modalScenarioExplanation" style="margin-top:10px; font-size:0.75rem; color:#065f46; background:rgba(255,255,255,0.8); border-radius:6px; padding:8px 12px; line-height:1.5;">
+            🚀 <strong>High Market Surge Active:</strong> When wholesale Mandi prices spike, TAZA automatically rewards you with <strong>20% of the price increase</strong> as a direct bonus on your payout. Fixed-price sellers earn ₹0 extra in the same scenario.
+          </div>
+        </div>
+      </div>
+
+      <!-- Fixed Tab Content -->
+      <div id="modalContentFixed" style="display:none; padding:20px 22px;">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:14px 16px; margin-bottom:14px;">
+          <h4 style="margin:0 0 8px; font-size:0.9rem; color:#334155; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="lock" style="width:15px; height:15px;"></i> How Fixed Farm Gate Price Works
+          </h4>
+          <p style="margin:0; font-size:0.81rem; color:#374151; line-height:1.6;">
+            You set a <strong>single constant price per kg</strong> that remains unchanged regardless of daily Mandi movements. Consumers see the same price every day. Simple, transparent, and highly predictable — great for long-term buyer relationships.
+          </p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-weight:700; font-size:0.82rem; color:#15803d; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+            <i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> Advantages
+          </div>
+          <ul style="margin:0; padding-left:18px; font-size:0.80rem; color:#374151; line-height:1.8;">
+            <li><strong>Full predictability</strong> — you know exactly what you'll earn before harvest.</li>
+            <li>Easier for consumers — they can plan grocery budgets without price surprises.</li>
+            <li>Ideal for <strong>subscription orders &amp; bulk B2B buyers</strong> who need cost certainty.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700; font-size:0.82rem; color:#b45309; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+            <i data-lucide="alert-triangle" style="width:14px; height:14px; color:#b45309;"></i> What You Miss
+          </div>
+          <ul style="margin:0; padding-left:18px; font-size:0.80rem; color:#374151; line-height:1.8;">
+            <li>No 20% profit-share bonus during Mandi price spikes — you earn a flat rate even when market surges.</li>
+            <li>Price may feel <em>undervalued</em> to consumers during low-market days (they see Mandi is higher).</li>
+          </ul>
+        </div>
+
+        <!-- Comparison table -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden;">
+          <div style="background:#f1f5f9; padding:10px 14px; font-weight:700; font-size:0.82rem; color:#475569;">📊 Side-by-Side: Dynamic vs Fixed (Festival Spike Scenario +₹15/kg)</div>
+          <table style="width:100%; border-collapse:collapse; font-size:0.80rem;">
+            <thead>
+              <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                <th style="padding:9px 14px; text-align:left; color:#64748b; font-weight:700;">Metric</th>
+                <th style="padding:9px 14px; text-align:center; color:#15803d; font-weight:700;">📈 Dynamic</th>
+                <th style="padding:9px 14px; text-align:center; color:#475569; font-weight:700;">🔒 Fixed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:9px 14px; color:#374151;">Mandi Spike</td>
+                <td style="padding:9px 14px; text-align:center; color:#15803d; font-weight:700;">+₹15.00/kg</td>
+                <td style="padding:9px 14px; text-align:center; color:#64748b;">No effect</td>
+              </tr>
+              <tr style="border-bottom:1px solid #f1f5f9; background:#f9fafb;">
+                <td style="padding:9px 14px; color:#374151;">Your Bonus Earned</td>
+                <td style="padding:9px 14px; text-align:center; color:#15803d; font-weight:700;">+₹3.00/kg 🎉</td>
+                <td style="padding:9px 14px; text-align:center; color:#ef4444;">₹0.00/kg ❌</td>
+              </tr>
+              <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:9px 14px; color:#374151;">Payout on 500 kg</td>
+                <td style="padding:9px 14px; text-align:center; color:#15803d; font-weight:700;">+₹1,500 extra</td>
+                <td style="padding:9px 14px; text-align:center; color:#64748b;">₹0 extra</td>
+              </tr>
+              <tr>
+                <td style="padding:9px 14px; color:#374151;">MSP Floor</td>
+                <td style="padding:9px 14px; text-align:center; color:#15803d; font-weight:700;">✅ Protected</td>
+                <td style="padding:9px 14px; text-align:center; color:#047857;">✅ Always fixed</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="padding:14px 22px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" onclick="closePricingStrategyInfoModal()" style="padding:9px 20px; border-radius:8px; border:1.5px solid #cbd5e1; background:#fff; color:#475569; font-weight:700; font-size:0.83rem; cursor:pointer;">Close</button>
+        <button type="button" onclick="closePricingStrategyInfoModal(); setListingPricingStrategy('DYNAMIC_MANDI_PEG');" style="padding:9px 20px; border-radius:8px; border:none; background:#16a34a; color:#fff; font-weight:700; font-size:0.83rem; cursor:pointer;">✅ Use Dynamic Pricing</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
